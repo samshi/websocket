@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+	
+<script type="text/javascript">  
+    //如果使用WebSocket下单请配置如下参数
+    var apiKey="";  //用户申请apiKey 
+    var secretKey="";//用户申请 secretKey  请注意妥善保管secretKey和apiKey
+
+    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi";//注意: 国际站 real.okcoin.cn 替换成 real.okcoin.com
+    var output;  
+    var lastHeartBeat = new Date().getTime();
+    var overtime = 3000;
+    
+    function init() { 
+        output = document.getElementById("output"); 
+        testWebSocket();
+	setInterval(checkConnect,1000);
+    }  
+	
+    function checkConnect() {
+	websocket.send("{'event':'ping'}"); 
+	if( (new Date().getTime()-lastHeartBeat)>overtime){
+           console.log("socket 连接断开，正在尝试重新建立连接");
+           testWebSocket();
+	}
+    }
+
+    function spotTrade(channel, symbol, type, price, amount) {//下单接口  使用前请先配置partner 和 secretKey
+	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'apikey':'"+apiKey+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','type':'"+type+"','price':'"+price+"','amount':'"+amount+"'}}");
+    }
+	
+    function spotCancelOrder(channel, symbol, order_id) { //撤销订单
+	 doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'apikey':'"+apiKey+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','order_id':'"+order_id+"'}}");
+    }	
+    function testWebSocket() { 
+        websocket = new WebSocket(wsUri); 
+        websocket.onopen = function(evt) { 
+            onOpen(evt) 
+        }; 
+        websocket.onclose = function(evt) {
+            onClose(evt) 
+        }; 
+        websocket.onmessage = function(evt) { 
+            onMessage(evt) 
+        }; 
+        websocket.onerror = function(evt) { 
+            onError(evt) 
+        }; 
+    }  
+  
+    function onOpen(evt) { 
+        writeToScreen("CONNECTED"); 
+	doSend("{'event':'addChannel','channel':'ok_btcusd_ticker'}"); 
+	doSend("{'event':'addChannel','channel':'ok_ltcusd_ticker'}"); 
+	doSend("{'event':'addChannel','channel':'ok_btcusd_trades'}"); 
+	doSend("{'event':'addChannel','channel':'ok_ltcusd_trades'}"); 
+	doSend("{'event':'addChannel','channel':'ok_btcusd_depth'}"); 
+	doSend("{'event':'addChannel','channel':'ok_ltcusd_depth'}");
+    }  
+  
+    function onClose(evt) { 
+        writeToScreen("DISCONNECTED"); 
+    }  
+  
+    function onMessage(evt) { 
+        var re_data = evt.data; 
+        if(re_data.indexOf("[") == 0){
+	    re_data = re_data.substring(1, re_data.length-1);
+	}		
+	var data_obj = JSON.parse(re_data)
+	if(data_obj.event == 'pong'){
+	    lastHeartBeat = new Date().getTime(); //检测通道是否可用
+	}else if(data_obj.channel == 'ok_spotusd_trade'||data_obj.channel == 'ok_spotcny_trade'){
+	    // 此处处理下单后返回数据
+	}else if(data_obj.channel == 'ok_spotusd_cancel_order' || data_obj.channel =='ok_spotcny_cancel_order'){
+            //此处处理撤销订单后返回数据
+	}else{
+            createTable(JSON.parse(evt.data));
+	}
+    }  
+	
+    function onError(evt) { 
+        writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data); 
+    }  
+  
+    function doSend(message) { 
+        writeToScreen("SENT: " + message);  
+        websocket.send(message); 
+    }  
+  
+    function writeToScreen(message) { 
+        var pre = document.createElement("p"); 
+        pre.style.wordWrap = "break-word"; 
+        pre.innerHTML = message; 
+        // output.appendChild(pre);
+    }  
+    
+    function createTable(array){
+        //table header
+   	var str= '<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
+        for (var index in array[0]) {
+            str += '<th>' + index + '</th>';
+        }
+        str += '</tr><tr id="tr2">';
+        // table body
+        for (var i = 0; i < array.length; i++) {
+            for (var index in array[i]) {
+        	 var temp = array[i][index];
+                     str += '<td>';
+                 var tem = JSON.stringify(temp);            
+                    str += tem;
+                    str += '</td>';
+            }
+            str += '</tr>';
+    	}
+    	str += '</table>';  
+    	removeTable('tdata');
+     	document.write(str);
+    }
+    
+    function removeTable(id){
+        var tbl = document.getElementById(id);
+        if(tbl) tbl.parentNode.removeChild(tbl);
+        var tt = document.getElementById('th2');
+        if(tt) tt.parentNode.removeChild(tt);
+    }
+    
+    window.addEventListener("load", init, false);  
+</script>
+<body>
+</body>
+<div id="status"></div>
+<div id="output"></div>
+</html>
