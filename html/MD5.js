@@ -6,6 +6,7 @@
 * Updated by Greg Holt 2000 - 2001. 
 * See http://pajhome.org.uk/site/legal.html for details. 
 */ 
+
 var hex_chr = "0123456789ABCDEF"; 
 function rhex(num) 
 { 
