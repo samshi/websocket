@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+	
+<script type="text/javascript">  
+    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi";  //国内站wsUri
+	// var wsUri ="wss://real.okcoin.com:10440/websocket/okcoinapi";  国际站wsUri
+    var output;  
+
+	var isConnect =2 ;
+    function init() { 
+        output = document.getElementById("output"); 
+        testWebSocket();
+		setInterval(checkConnect,5000);
+    }  
+	function checkConnect() {
+        if(isConnect == 2)
+        {
+            testWebSocket()
+        }
+    }
+
+    function testWebSocket() { 
+        websocket = new WebSocket(wsUri); 
+        websocket.onopen = function(evt) { 
+			isConnect=1;
+            onOpen(evt) 
+        }; 
+        websocket.onclose = function(evt) {
+			isConnect = 2;
+            onClose(evt) 
+        }; 
+        websocket.onmessage = function(evt) { 
+           onMessage(evt) 
+        }; 
+        websocket.onerror = function(evt) { 
+            onError(evt) 
+        }; 
+        
+    }  
+  
+    function onOpen(evt) { 
+        writeToScreen("CONNECTED"); 
+		doSend("{'event':'addChannel','channel':'ok_btccny_ticker'}"); 
+		doSend("{'event':'addChannel','channel':'ok_ltccny_ticker'}"); 
+		doSend("{'event':'addChannel','channel':'ok_btccny_trades'}"); 
+		doSend("{'event':'addChannel','channel':'ok_ltccny_trades'}"); 
+		doSend("{'event':'addChannel','channel':'ok_btccny_depth'}"); 
+		doSend("{'event':'addChannel','channel':'ok_ltccny_depth'}");
+    }  
+  
+    function onClose(evt) { 
+        writeToScreen("DISCONNECTED"); 
+    }  
+  
+    function onMessage(evt) { 
+        //writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>'); 
+          var myList	= evt.data;                
+          var array = JSON.parse(myList); 
+          createTable(array); 
+    }  
+  
+    function onError(evt) { 
+        writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data); 
+    }  
+  
+    function doSend(message) { 
+        writeToScreen("SENT: " + message);  
+        websocket.send(message); 
+    }  
+  
+    function writeToScreen(message) { 
+        var pre = document.createElement("p"); 
+        pre.style.wordWrap = "break-word"; 
+        pre.innerHTML = message; 
+       // output.appendChild(pre);
+         
+    }  
+  
+    window.addEventListener("load", init, false);  
+    
+
+
+		function createTable(array){
+        //table header
+   			var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
+        for (var index in array[0]) {
+            str += '<th>' + index + '</th>';
+        }
+        str += '</tr><tr id="tr2">';
+        
+        // table body
+    
+    		for (var i = 0; i < array.length; i++) {
+
+        	for (var index in array[i]) {
+        		var temp=array[i][index];
+            str += '<td>';
+            var tem=JSON.stringify(temp);            
+            str += tem;
+            str += '</td>';
+        	}
+        str += '</tr>';
+    		}
+    
+    	str += '</table>';  
+    	removeTable('tdata');
+     	document.write(str);
+		}
+	   function removeTable(id)
+    {
+        var tbl = document.getElementById(id);
+        if(tbl) tbl.parentNode.removeChild(tbl);
+        var tt = document.getElementById('th2');
+        if(tt) tt.parentNode.removeChild(tt);
+    }
+   
+</script>
+
+<div id="output"></div>
+</html>
