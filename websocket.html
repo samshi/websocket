@@ -4,18 +4,17 @@
 	
 <script type="text/javascript">  
     var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi";  //中国站Uri
-	// var wsUri ="wss://real.okcoin.com:10440/websocket/okcoinapi";  国际站Uri
+    // var wsUri ="wss://real.okcoin.com:10440/websocket/okcoinapi";  国际站Uri
     var output;  
 
-	var isConnect =2 ;
+    var isConnect =2 ;
     function init() { 
         output = document.getElementById("output"); 
         testWebSocket();
-		setInterval(checkConnect,5000);
+	setInterval(checkConnect,5000);
     }  
-	function checkConnect() {
-        if(isConnect == 2)
-        {
+    function checkConnect() {
+        if(isConnect == 2){
             testWebSocket()
         }
     }
@@ -23,11 +22,11 @@
     function testWebSocket() { 
         websocket = new WebSocket(wsUri); 
         websocket.onopen = function(evt) { 
-			isConnect=1;
+	    isConnect=1;
             onOpen(evt) 
         }; 
         websocket.onclose = function(evt) {
-			isConnect = 2;
+	    isConnect = 2;
             onClose(evt) 
         }; 
         websocket.onmessage = function(evt) { 
@@ -41,12 +40,12 @@
   
     function onOpen(evt) { 
         writeToScreen("CONNECTED"); 
-		doSend("{'event':'addChannel','channel':'ok_btccny_ticker'}"); 
-		doSend("{'event':'addChannel','channel':'ok_ltccny_ticker'}"); 
-		doSend("{'event':'addChannel','channel':'ok_btccny_trades'}"); 
-		doSend("{'event':'addChannel','channel':'ok_ltccny_trades'}"); 
-		doSend("{'event':'addChannel','channel':'ok_btccny_depth'}"); 
-		doSend("{'event':'addChannel','channel':'ok_ltccny_depth'}");
+	doSend("{'event':'addChannel','channel':'ok_btccny_ticker'}"); 
+	doSend("{'event':'addChannel','channel':'ok_ltccny_ticker'}"); 
+	doSend("{'event':'addChannel','channel':'ok_btccny_trades'}"); 
+	doSend("{'event':'addChannel','channel':'ok_ltccny_trades'}"); 
+	doSend("{'event':'addChannel','channel':'ok_btccny_depth'}"); 
+	doSend("{'event':'addChannel','channel':'ok_ltccny_depth'}");
     }  
   
     function onClose(evt) { 
@@ -81,9 +80,9 @@
     
 
 
-		function createTable(array){
+function createTable(array){
         //table header
-   			var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
+   	var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
         for (var index in array[0]) {
             str += '<th>' + index + '</th>';
         }
@@ -91,29 +90,30 @@
         
         // table body
     
-    		for (var i = 0; i < array.length; i++) {
+    	for (var i = 0; i < array.length; i++) {
 
-        	for (var index in array[i]) {
-        		var temp=array[i][index];
-            str += '<td>';
-            var tem=JSON.stringify(temp);            
-            str += tem;
-            str += '</td>';
-        	}
-        str += '</tr>';
-    		}
+             for (var index in array[i]) {
+        	 var temp=array[i][index];
+                 str += '<td>';
+                 var tem=JSON.stringify(temp);            
+                 str += tem;
+                 str += '</td>';
+              }
+              str += '</tr>';
+    	}
     
     	str += '</table>';  
     	removeTable('tdata');
      	document.write(str);
-		}
-	   function removeTable(id)
-    {
+	
+}
+function removeTable(id){
         var tbl = document.getElementById(id);
         if(tbl) tbl.parentNode.removeChild(tbl);
         var tt = document.getElementById('th2');
         if(tt) tt.parentNode.removeChild(tt);
-    }
+	
+}
    
 </script>
 
