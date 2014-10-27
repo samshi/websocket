@@ -3,7 +3,7 @@
 <title>WebSocket Test</title>
 	
 <script type="text/javascript">  
-    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi"; //wss://real.okcoin.com:10440/websocket/okcoinapi;
+    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi";//注意: 国际站 real.okcoin.cn 替换成 real.okcoin.com
     var output;  
     var lastHeartBeat = new Date().getTime();
     var overtime = 3000;
@@ -97,11 +97,11 @@
         for (var i = 0; i < array.length; i++) {
 
         	for (var index in array[i]) {
-        		var temp=array[i][index];
-                    str += '<td>';
-                var tem=JSON.stringify(temp);            
-                    str += tem;
-                    str += '</td>';
+        	    var temp=array[i][index];
+                        str += '<td>';
+                    var tem=JSON.stringify(temp);            
+                        str += tem;
+                        str += '</td>';
         	}
             str += '</tr>';
     	}
