@@ -3,10 +3,11 @@
 <title>WebSocket Test</title>
 	
 <script type="text/javascript">  
-    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi"; 
+    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi"; //wss://real.okcoin.com:10440/websocket/okcoinapi;
     var output;  
     var lastHeartBeat = new Date().getTime();
     var overtime = 3000;
+	
     function init() { 
         output = document.getElementById("output"); 
         testWebSocket();
@@ -14,15 +15,13 @@
     }  
 	
     function checkConnect() {
-	 websocket.send("{'event':'ping'}"); 
-	 if( (new Date().getTime()-lastHeartBeat)>overtime){
-	      console.log("socket 连接断开，正在尝试重新建立连接");
-	      testWebSocket();
-	 }
+	websocket.send("{'event':'ping'}"); 
+	if( (new Date().getTime()-lastHeartBeat)>overtime){
+           console.log("socket 连接断开，正在尝试重新建立连接");
+           testWebSocket();
+	}
     }
-	  
-    
-
+	
     function testWebSocket() { 
         websocket = new WebSocket(wsUri); 
         websocket.onopen = function(evt) { 
@@ -57,18 +56,17 @@
   
     function onMessage(evt) { 
         //writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>'); 
-          var myList	= evt.data;           
-          var array = JSON.parse(myList)
-		  var result = array.event;
-		  if(result == 'pong'){
-		      lastHeartBeat = new Date().getTime();
-		  }else{
-              createTable(array);
-		  }
+        var myList	= evt.data;           
+        var array = JSON.parse(myList)
+	var result = array.event;
+	if(result == 'pong'){
+	   lastHeartBeat = new Date().getTime();
+	}else{
+           createTable(array);
+	}
          			  
     }  
 	
-  
     function onError(evt) { 
         writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data); 
     }  
@@ -82,17 +80,15 @@
         var pre = document.createElement("p"); 
         pre.style.wordWrap = "break-word"; 
         pre.innerHTML = message; 
-       // output.appendChild(pre);
+        // output.appendChild(pre);
          
     }  
   
     window.addEventListener("load", init, false);  
     
-
-
-	function createTable(array){
+    function createTable(array){
         //table header
-   		var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
+   	var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
         for (var index in array[0]) {
             str += '<th>' + index + '</th>';
         }
@@ -125,7 +121,6 @@
    
 </script>
 <body>
-
 </body>
 <div id="status"></div>
 <div id="output"></div>
