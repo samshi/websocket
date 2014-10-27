@@ -7,7 +7,7 @@
     var output;  
     var lastHeartBeat = new Date().getTime();
     var overtime = 3000;
-	
+    
     function init() { 
         output = document.getElementById("output"); 
         testWebSocket();
@@ -36,7 +36,6 @@
         websocket.onerror = function(evt) { 
             onError(evt) 
         }; 
-        
     }  
   
     function onOpen(evt) { 
@@ -47,7 +46,6 @@
 	doSend("{'event':'addChannel','channel':'ok_ltcusd_trades'}"); 
 	doSend("{'event':'addChannel','channel':'ok_btcusd_depth'}"); 
 	doSend("{'event':'addChannel','channel':'ok_ltcusd_depth'}");
-	
     }  
   
     function onClose(evt) { 
@@ -56,7 +54,7 @@
   
     function onMessage(evt) { 
         //writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>'); 
-        var myList	= evt.data;           
+        var myList = evt.data;           
         var array = JSON.parse(myList)
 	var result = array.event;
 	if(result == 'pong'){
@@ -64,7 +62,6 @@
 	}else{
            createTable(array);
 	}
-         			  
     }  
 	
     function onError(evt) { 
@@ -81,35 +78,31 @@
         pre.style.wordWrap = "break-word"; 
         pre.innerHTML = message; 
         // output.appendChild(pre);
-         
     }  
     
     function createTable(array){
         //table header
-   	var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
+   	var str= '<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
         for (var index in array[0]) {
             str += '<th>' + index + '</th>';
         }
         str += '</tr><tr id="tr2">';
-        
         // table body
-    
         for (var i = 0; i < array.length; i++) {
-
         	for (var index in array[i]) {
-        	    var temp=array[i][index];
+        	    var temp = array[i][index];
                         str += '<td>';
-                    var tem=JSON.stringify(temp);            
+                    var tem = JSON.stringify(temp);            
                         str += tem;
                         str += '</td>';
         	}
             str += '</tr>';
     	}
-    
     	str += '</table>';  
     	removeTable('tdata');
      	document.write(str);
     }
+    
     function removeTable(id){
         var tbl = document.getElementById(id);
         if(tbl) tbl.parentNode.removeChild(tbl);
