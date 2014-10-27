@@ -89,13 +89,13 @@
         str += '</tr><tr id="tr2">';
         // table body
         for (var i = 0; i < array.length; i++) {
-        	for (var index in array[i]) {
-        	    var temp = array[i][index];
-                        str += '<td>';
-                    var tem = JSON.stringify(temp);            
-                        str += tem;
-                        str += '</td>';
-        	}
+            for (var index in array[i]) {
+        	 var temp = array[i][index];
+                     str += '<td>';
+                 var tem = JSON.stringify(temp);            
+                    str += tem;
+                    str += '</td>';
+            }
             str += '</tr>';
     	}
     	str += '</table>';  
