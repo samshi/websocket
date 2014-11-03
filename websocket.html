@@ -3,6 +3,10 @@
 <title>WebSocket Test</title>
 	
 <script type="text/javascript">  
+    //如果使用WebSocket下单请配置如下参数
+    var partner="";  //用户申请API Partner 
+    var secretKey="";//用户申请API secretKey  请注意妥善保管secretKey和Partner
+
     var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi";//注意: 国际站 real.okcoin.cn 替换成 real.okcoin.com
     var output;  
     var lastHeartBeat = new Date().getTime();
@@ -21,7 +25,14 @@
            testWebSocket();
 	}
     }
+
+    function spotTrade(channel, symbol, type, price, amount) {//下单接口  使用前请先配置partner 和 secretKey
+	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'partner':'"+partner+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','type':'"+type+"','price':'"+price+"','amount':'"+amount+"'}}");
+    }
 	
+    function spotCancelOrder(channel, symbol, order_id) { //撤销订单
+	 doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'partner':'"+partner+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','order_id':'"+order_id+"'}}");
+    }	
     function testWebSocket() { 
         websocket = new WebSocket(wsUri); 
         websocket.onopen = function(evt) { 
@@ -40,6 +51,8 @@
   
     function onOpen(evt) { 
         writeToScreen("CONNECTED"); 
+        //spotTrade('ok_spotusd_trade','btc_usd','buy','1','0.1'); // 下单测试
+        //spotCancelOrder('ok_spotusd_cancel_order','btc_usd','23413');//撤单测试
 	doSend("{'event':'addChannel','channel':'ok_btcusd_ticker'}"); 
 	doSend("{'event':'addChannel','channel':'ok_ltcusd_ticker'}"); 
 	doSend("{'event':'addChannel','channel':'ok_btcusd_trades'}"); 
@@ -53,14 +66,19 @@
     }  
   
     function onMessage(evt) { 
-        //writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>'); 
-        var myList = evt.data;           
-        var array = JSON.parse(myList)
-	var result = array.event;
-	if(result == 'pong'){
-	   lastHeartBeat = new Date().getTime();
+        var re_data = evt.data; 
+        if(re_data.indexOf("[") == 0){
+	    re_data = re_data.substring(1, re_data.length-1);
+	}		
+	var data_obj = JSON.parse(re_data)
+	if(data_obj.event == 'pong'){
+	    lastHeartBeat = new Date().getTime(); //检测通道是否可用
+	}else if(data_obj.channel == 'ok_spotusd_trade'||data_obj.channel == 'ok_spotcny_trade'){
+	    // 此处处理下单后返回数据
+	}else if(data_obj.channel == 'ok_spotusd_cancel_order' || data_obj.channel =='ok_spotcny_cancel_order'){
+            //此处处理撤销订单后返回数据
 	}else{
-           createTable(array);
+            createTable(JSON.parse(evt.data));
 	}
     }  
 	
@@ -109,6 +127,7 @@
         var tt = document.getElementById('th2');
         if(tt) tt.parentNode.removeChild(tt);
     }
+    
     window.addEventListener("load", init, false);  
 </script>
 <body>
