@@ -51,8 +51,6 @@
   
     function onOpen(evt) { 
         writeToScreen("CONNECTED"); 
-        //spotTrade('ok_spotusd_trade','btc_usd','buy','1','0.1'); // 下单测试
-        //spotCancelOrder('ok_spotusd_cancel_order','btc_usd','23413');//撤单测试
 	doSend("{'event':'addChannel','channel':'ok_btcusd_ticker'}"); 
 	doSend("{'event':'addChannel','channel':'ok_ltcusd_ticker'}"); 
 	doSend("{'event':'addChannel','channel':'ok_btcusd_trades'}"); 
