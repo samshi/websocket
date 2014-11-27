@@ -4,8 +4,8 @@
 	
 <script type="text/javascript">  
     //如果使用WebSocket下单请配置如下参数
-    var partner="";  //用户申请API Partner 
-    var secretKey="";//用户申请API secretKey  请注意妥善保管secretKey和Partner
+    var apiKey="";  //用户申请apiKey 
+    var secretKey="";//用户申请 secretKey  请注意妥善保管secretKey和apiKey
 
     var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi";//注意: 国际站 real.okcoin.cn 替换成 real.okcoin.com
     var output;  
@@ -27,11 +27,11 @@
     }
 
     function spotTrade(channel, symbol, type, price, amount) {//下单接口  使用前请先配置partner 和 secretKey
-	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'partner':'"+partner+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','type':'"+type+"','price':'"+price+"','amount':'"+amount+"'}}");
+	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'apikey':'"+apiKey+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','type':'"+type+"','price':'"+price+"','amount':'"+amount+"'}}");
     }
 	
     function spotCancelOrder(channel, symbol, order_id) { //撤销订单
-	 doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'partner':'"+partner+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','order_id':'"+order_id+"'}}");
+	 doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'apikey':'"+apiKey+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','order_id':'"+order_id+"'}}");
     }	
     function testWebSocket() { 
         websocket = new WebSocket(wsUri); 
