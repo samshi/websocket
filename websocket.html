@@ -25,12 +25,15 @@
 	}
     }
 
-    function spotTrade(channel, symbol, type, price, amount) {//下单接口  使用前请先配置partner 和 secretKey
-	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'apikey':'"+apiKey+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','type':'"+type+"','price':'"+price+"','amount':'"+amount+"'}}");
+    function spotTrade(channel, symbol, type, price, amount) {//下单接口  使用前请先配置apiKey 和 secretKey
+        var sign = MD5("amount="+amount+"&api_key="+apiKey+"&price="+price+"&symbol="+symbol+"&type="+type+"&secret_key="+secretKey)
+	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'api_key':'"+apiKey+"','sign':'"+sign+"','symbol':'"+symbol+"','type':'"+type+"','price':'"+price+"','amount':'"+amount+"'}}");
+    
     }
 	
     function spotCancelOrder(channel, symbol, order_id) { //撤销订单
-	 doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'apikey':'"+apiKey+"','secretkey':'"+secretKey+"','symbol':'"+symbol+"','order_id':'"+order_id+"'}}");
+	var sign=MD5("api_key="+apiKey+"&order_id="+order_id+"&symbol="+symbol+"&secret_key="+secretKey)
+	doSend("{'event':'addChannel','channel':'"+channel+"','parameters':{'api_key':'"+apiKey+"','sign':'"+sign+"','symbol':'"+symbol+"','order_id':'"+order_id+"'}}");
     }	
     function testWebSocket() { 
         websocket = new WebSocket(wsUri); 
