@@ -166,11 +166,11 @@ def on_open(self):
     #self.send("{'event':'addChannel','channel':'ok_ltcusd_future_depth_next_week'}")
 
     #现货下单
-    #spotTradeMsg = spotTrade('ok_spotusd_trade','101','683FF5EC26641B231F1CD75109DA76DE','ltc_usd','buy','0.05','0.1')
+    #spotTradeMsg = spotTrade('ok_spotusd_trade','XXXX','XXXXXXXXXXXXXXXX','ltc_usd','buy','0.05','0.1')
     #self.send(spotTradeMsg)
 
     #现货注册实时交易
-    #realtradesMsg = realtrades('ok_usd_realtrades','101','683FF5EC26641B231F1CD75109DA76DE')
+    #realtradesMsg = realtrades('ok_usd_realtrades','XXXX','XXXXXXXXXXXXXXXX')
     #self.send(realtradesMsg)
 
     #现货取消订单
