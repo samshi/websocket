@@ -155,48 +155,47 @@ class WebSocketApp(object):
         sign = buildMySign(params,secretkey)
         return "{'event':'addChannel','channel':'ok_usd_future_realtrades','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"'}}"
 
-    def on_open(self):
-        #国际站比特币现货行情
-        self.send("{'event':'addChannel','channel':'ok_btcusd_ticker'}")
+def on_open(self):
+    #国际站比特币现货行情
+    self.send("{'event':'addChannel','channel':'ok_btcusd_ticker'}")
 
-        #国际站比特币期货当周合约行情
-        #self.send("{'event':'addChannel','channel':'ok_btcusd_future_ticker_this_week'}")
+    #国际站比特币期货当周合约行情
+    #self.send("{'event':'addChannel','channel':'ok_btcusd_future_ticker_this_week'}")
 
-        #国际站莱特币期货次周市场深度
-        #self.send("{'event':'addChannel','channel':'ok_ltcusd_future_depth_next_week'}")
+    #国际站莱特币期货次周市场深度
+    #self.send("{'event':'addChannel','channel':'ok_ltcusd_future_depth_next_week'}")
 
-        #现货下单
-        #spotTradeMsg = spotTrade('ok_spotusd_trade','101','683FF5EC26641B231F1CD75109DA76DE','ltc_usd','buy','0.05','0.1')
-        #self.send(spotTradeMsg)
+    #现货下单
+    #spotTradeMsg = spotTrade('ok_spotusd_trade','101','683FF5EC26641B231F1CD75109DA76DE','ltc_usd','buy','0.05','0.1')
+    #self.send(spotTradeMsg)
 
-        #现货注册实时交易
-        #realtradesMsg = realtrades('ok_usd_realtrades','101','683FF5EC26641B231F1CD75109DA76DE')
-        #self.send(realtradesMsg)
+    #现货注册实时交易
+    #realtradesMsg = realtrades('ok_usd_realtrades','101','683FF5EC26641B231F1CD75109DA76DE')
+    #self.send(realtradesMsg)
 
-        #现货取消订单
-        #spotCancelOrderMsg = spotCancelOrder('ok_spotusd_cancel_order','XXXX','XXXXXXX','btc_usd','125433027')
-        #self.send(spotCancelOrderMsg)
+    #现货取消订单
+    #spotCancelOrderMsg = spotCancelOrder('ok_spotusd_cancel_order','XXXX','XXXXXXX','btc_usd','125433027')
+    #self.send(spotCancelOrderMsg)
 
-        #期货下单
-        #futureTradeMsg = futureTrade('XXXX','XXXXXXX','btc_usd','this_week','2','2','1','0','20')
-        #self.send(futureTradeMsg)
+    #期货下单
+    #futureTradeMsg = futureTrade('XXXX','XXXXXXX','btc_usd','this_week','2','2','1','0','20')
+    #self.send(futureTradeMsg)
 
-        #期货取消订单
-        #futureCancelOrderMsg = futureCancelOrder('XXXX','XXXXXXX','btc_usd','65464','this_week')
-        #self.send(futureCancelOrderMsg)
+    #期货取消订单
+    #futureCancelOrderMsg = futureCancelOrder('XXXX','XXXXXXX','btc_usd','65464','this_week')
+    #self.send(futureCancelOrderMsg)
 
-        #期货注册实时交易
-        #futureRealTradesMsg = futureRealTrades('XXXX','XXXXXXX')
-        #self.send(futureRealTradesMsg)
-    
-    def on_message(self,evt):
-        data = json.loads(evt)
-        print data
+     #期货注册实时交易
+     #futureRealTradesMsg = futureRealTrades('XXXX','XXXXXXX')
+     #self.send(futureRealTradesMsg)
+def on_message(self,evt):
+    data = json.loads(evt)
+    print data
 
-    def on_error(self,evt):
-        print 'error :'+evt
+def on_error(self,evt):
+    print 'error :'+evt
 
-    def on_close(self,evt):
+def on_close(self,evt):
         print 'DISCONNECT'
 
 if __name__ == "__main__":
