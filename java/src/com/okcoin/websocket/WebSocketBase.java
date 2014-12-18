@@ -34,9 +34,9 @@ public abstract class  WebSocketBase {
 
 	private Logger log = Logger.getLogger(WebSocketBase.class);
 	private WebSocketService service =null;
-    private Timer timerTask = null;
-    private MoniterTask moniter = null;
-    private EventLoopGroup group = null;
+        private Timer timerTask = null;
+        private MoniterTask moniter = null;
+        private EventLoopGroup group = null;
 	private Bootstrap bootstrap = null;
 	private Channel channel = null;
 	private String url = null;
