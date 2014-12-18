@@ -38,7 +38,7 @@ public class Example {
 		// 期货下单交易
 		// client.futureTrade(apiKey, secretKey, "btc_cny", "this_week", 2.3, 2, 1, 0, 10);
 		
-	    // 实时交易数据   apiKey
+	        // 实时交易数据   apiKey
 		//client.futureRealtrades(apiKey, secretKey);
 		
 		//取消期货交易
