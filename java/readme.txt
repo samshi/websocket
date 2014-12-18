@@ -33,6 +33,7 @@ WebSocket使用说明：
   client.start();
   
 4.调用相关方法获取相应数据：
+
   1)订阅市场行情
 	client.addChannel("ok_btccny_ticker");
 		
