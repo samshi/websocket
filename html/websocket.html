@@ -99,38 +99,38 @@
   
     function onMessage(evt) { 
         //writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>'); 
-          var myList	= evt.data;    
-		  console.log(myList);
-		  console.log(new Date().getTime())
-          var array = JSON.parse(myList)
-		  var result = array.event;
-		  var isTrade = false;
-		  var isCancelOrder = false;
-		  for (var i = 0; i < array.length; i++) {
-		       for (var index in array[i]) {
-			       var temp=array[i][index];
-				   if(temp == 'ok_spotusd_trade' || temp == 'ok_spotcny_trade'){
-				       isTrade = true;
-				   }else if(temp == 'ok_spotusd_cancel_order' || temp =='ok_spotcny_cancel_order'){
-				       isCancelOrder = true;
-				   }
-				   var order_id = temp.order_id;
-				   if(typeof(order_id)!='undefined'){
-				      if(isTrade){
-				         console.log("orderId is  "+order_id);
-					    //下单成功 业务代码
-					  }else if(isCancelOrder){
-					     console.log("order  "+order_id+" is now cancled");
-						 //取消订单成功 业务代码
-					  }
-				   }
-			   }
-		  }
-		  if(result == 'pong'){
-		      lastHeartBeat = new Date().getTime();
-		  }else{
-              createTable(array);
-		  }
+        var myList = evt.data;    
+        console.log(myList);
+        console.log(new Date().getTime())
+        var array = JSON.parse(myList)
+        var result = array.event;
+        var isTrade = false;
+        var isCancelOrder = false;
+	    for (var i = 0; i < array.length; i++) {
+		for (var index in array[i]) {
+	             var temp=array[i][index];
+		     if(temp == 'ok_spotusd_trade' || temp == 'ok_spotcny_trade'){
+			   isTrade = true;
+		      }else if(temp == 'ok_spotusd_cancel_order' || temp =='ok_spotcny_cancel_order'){
+		           isCancelOrder = true;
+		      }
+		      var order_id = temp.order_id;
+		      if(typeof(order_id)!='undefined'){
+			       if(isTrade){
+				   console.log("orderId is  "+order_id);
+			           //下单成功 业务代码
+			        }else if(isCancelOrder){
+			           console.log("order  "+order_id+" is now cancled");
+				   //取消订单成功 业务代码
+			        }
+		      }
+	          }
+	     }
+	     if(result == 'pong'){
+		lastHeartBeat = new Date().getTime();
+	     }else{
+                createTable(array);
+	     }
          			  
     }  
 	
