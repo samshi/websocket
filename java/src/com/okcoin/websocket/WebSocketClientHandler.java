@@ -1,10 +1,17 @@
 package com.okcoin.websocket;
+import java.io.IOException;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -65,7 +72,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         if (frame instanceof TextWebSocketFrame) {
         	 TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
         	 service.onReceive(textFrame.text());
-        } else if (frame instanceof PongWebSocketFrame) {
+        } else if (frame instanceof BinaryWebSocketFrame) {
+        	BinaryWebSocketFrame binaryFrame=(BinaryWebSocketFrame)frame;
+        	service.onReceive(decodeByteBuff(binaryFrame.content()));
+        }else if (frame instanceof PongWebSocketFrame) {
             System.out.println("WebSocket Client received pong");
         } else if (frame instanceof CloseWebSocketFrame) {
             System.out.println("WebSocket Client received closing");
@@ -81,4 +91,21 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         }
         ctx.close();
     }
+    public  String decodeByteBuff(ByteBuf buf) throws IOException, DataFormatException {
+    
+    	   byte[] temp = new byte[buf.readableBytes()];
+    	   ByteBufInputStream bis = new ByteBufInputStream(buf);
+		   bis.read(temp);
+		   bis.close();
+		   Inflater decompresser = new Inflater(true);
+		   decompresser.setInput(temp, 0, temp.length);
+		   StringBuilder sb = new StringBuilder();
+		   byte[] result = new byte[1024];
+		   while (!decompresser.finished()) {
+				int resultLength = decompresser.inflate(result);
+				sb.append(new String(result, 0, resultLength, "UTF-8"));
+		   }
+		   decompresser.end();
+           return sb.toString();
+	}
 }

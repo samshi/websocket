@@ -24,6 +24,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
@@ -60,7 +61,7 @@ public abstract class  WebSocketBase {
 		moniter = new MoniterTask(this);
 		this.connect();
 		timerTask = new Timer(); 
-		timerTask.schedule(moniter, 1000, 3000);  
+		timerTask.schedule(moniter, 1000, 5000);  
 	}
 	public void setStatus(boolean flag){
 		this.isAlive = flag;
@@ -69,7 +70,7 @@ public abstract class  WebSocketBase {
 		if(channel==null){
 			return ;
 		}
-		String dataMsg = "{'event':'addChannel','channel':'"+channel+"'}";
+		String dataMsg = "{'event':'addChannel','channel':'"+channel+"','binary':'true'}";
 		this.sendMessage(dataMsg);
 		subscribChannel.add(channel);
 	}
@@ -156,7 +157,7 @@ public abstract class  WebSocketBase {
 		StringBuilder tradeStr = new StringBuilder(
 				"{'event':'addChannel','channel':'ok_usd_future_realtrades','parameters':{'api_key':'")
 				.append(apiKey).append("','sign':'").append(signStr)
-				.append("'}}");
+				.append("'},'binary':'true'}");
 		log.info(tradeStr.toString());
 		this.sendMessage(tradeStr.toString());
 	}
@@ -221,7 +222,7 @@ public abstract class  WebSocketBase {
 		StringBuilder tradeStr = new StringBuilder(
 				"{'event':'addChannel','channel':'").append(channel).append("','parameters':{'api_key':'")
 				.append(apiKey).append("','sign':'").append(signStr)
-				.append("'}}");
+				.append("'},'binary':'true'}");
 		log.info(tradeStr.toString());
 		this.sendMessage(tradeStr.toString());
 	}
@@ -244,7 +245,7 @@ public abstract class  WebSocketBase {
 		StringBuilder tradeStr = new StringBuilder(
 				"{'event':'addChannel','channel':'"+channel+"','parameters':{'api_key':'")
 				.append(apiKey).append("','sign':'").append(signStr)
-				.append("'}}");
+				.append("'},'binary':'true'}");
 		log.info(tradeStr.toString());
 		this.sendMessage(tradeStr.toString());
 	}
@@ -259,12 +260,16 @@ public abstract class  WebSocketBase {
 	 * @param type
 	 */
 	public void spotTrade(String apiKey,  String secretKey,String symbol,
-			double price, double amount, String type) {
+			String price, String amount, String type) {
 		Map<String, String> signPreMap = new HashMap<String, String>();
 		signPreMap.put("api_key", apiKey);
 		signPreMap.put("symbol", symbol);
-		signPreMap.put("price", String.valueOf(price));
-		signPreMap.put("amount", String.valueOf(amount));
+		if(price!=null){
+		signPreMap.put("price", price);
+		}
+		if(amount!=null){
+		signPreMap.put("amount", amount);
+		}
 		signPreMap.put("type", type);
 		String preStr = MD5Util.createLinkString(signPreMap);
 		StringBuilder preBuilder = new StringBuilder(preStr);
@@ -372,21 +377,21 @@ class MoniterTask extends TimerTask {
 	private int checkTime = 5000;
 	private WebSocketBase client = null;
 	public void updateTime(){
-		log.info("startTime is update");
+		//log.info("startTime is update");
 		startTime = System.currentTimeMillis();
 	}
     public MoniterTask(WebSocketBase client ){
         this.client = client;
-    	log.info("TimerTask is starting.... ");
+    	//log.info("TimerTask is starting.... ");
     }
     public void run() {  
        if(System.currentTimeMillis()-startTime>checkTime){
     	   client.setStatus(false);
-           log.info("Moniter reconnect....... ");
+         //  log.info("Moniter reconnect....... ");
     	   client.reConnect();
        } 
        client.sentPing();
-       log.info("Moniter ping data sent.... ");
+      // log.info("Moniter ping data sent.... ");
     }  
   
 }  
