@@ -1,0 +1,3 @@
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\websocket.exe.config
+D:\visual studio 2010\workspace\websocket\websocket\obj\Debug\websocket.exe
+D:\visual studio 2010\workspace\websocket\websocket\obj\Debug\websocket.pdb

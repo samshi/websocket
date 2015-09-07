@@ -1,0 +1,10 @@
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\websocket.exe.config
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\websocket.exe
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\websocket.pdb
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\ICSharpCode.SharpZipLib.dll
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\websocket-sharp.dll
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\ICSharpCode.SharpZipLib.pdb
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\ICSharpCode.SharpZipLib.xml
+D:\visual studio 2010\workspace\websocket\websocket\bin\Debug\websocket-sharp.pdb
+D:\visual studio 2010\workspace\websocket\websocket\obj\Debug\websocket.exe
+D:\visual studio 2010\workspace\websocket\websocket\obj\Debug\websocket.pdb
