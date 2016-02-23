@@ -88,20 +88,20 @@ def futureCancelOrder(api_key,secretkey,symbol,orderId,contractType):
 def futureRealTrades(api_key,secretkey):
     params = {'api_key':api_key}
     sign = buildMySign(params,secretkey)
-    return "{'event':'addChannel','channel':'ok_usd_future_realtrades','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"'},'binary':'true'}"
+    return "{'event':'addChannel','channel':'ok_sub_futureusd_trades','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"'},'binary':'true'}"
 
 def on_open(self):
     #subscribe okcoin.com spot ticker
-    self.send("{'event':'addChannel','channel':'ok_btcusd_ticker','binary':'true'}")
+    self.send("{'event':'addChannel','channel':'ok_sub_spotusd_btc_ticker','binary':'true'}")
 
     #subscribe okcoin.com future this_week ticker
-    #self.send("{'event':'addChannel','channel':'ok_btcusd_future_ticker_this_week','binary':'true'}")
+    #self.send("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_this_week','binary':'true'}")
 
     #subscribe okcoin.com future depth
-    #self.send("{'event':'addChannel','channel':'ok_ltcusd_future_depth_next_week','binary':'true'}")
+    #self.send("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_next_week_20','binary':'true'}")
 
     #subscrib real trades for self
-    #realtradesMsg = realtrades('ok_usd_realtrades',api_key,secret_key)
+    #realtradesMsg = realtrades('ok_sub_spotusd_trades',api_key,secret_key)
     #self.send(realtradesMsg)
 
 

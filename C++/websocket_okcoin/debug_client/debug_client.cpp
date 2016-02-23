@@ -1,33 +1,31 @@
-
 #include "okcoinwebsocketapi.h"
 
 
-OKCoinWebSocketApiCom *comapi = 0;	//´Ë´¦ÎªÈ«¾Ö±äÁ¿£¬½¨ÒéÓÃ»§×ö³Éµ¥ÀýÄ£Ê½
-OKCoinWebSocketApiCn *cnapi = 0;	//´Ë´¦ÎªÈ«¾Ö±äÁ¿£¬½¨ÒéÓÃ»§×ö³Éµ¥ÀýÄ£Ê½
+OKCoinWebSocketApiCom *comapi = 0;	//æ­¤å¤„ä¸ºå…¨å±€å˜é‡ï¼Œå»ºè®®ç”¨æˆ·åšæˆå•ä¾‹æ¨¡å¼
+OKCoinWebSocketApiCn *cnapi = 0;	//æ­¤å¤„ä¸ºå…¨å±€å˜é‡ï¼Œå»ºè®®ç”¨æˆ·åšæˆå•ä¾‹æ¨¡å¼
 
-//ÒÔÏÂÊÇwebstocket»Øµ÷£¬ÓÉÓÚ¹ú¼ÊÕ¾ºÍ¹úÄÚÕ¾·Ö±ðÊÇÁ½¸öÁ¬½Ó£¬
-//Ò²¾ÍÊÇÊý¾ÝÊÇÓÉÁ½¸öÏß³Ì·¢³öµÄ£¬¹Ê¹ú¼ÊÕ¾ºÍ¹úÄÚÕ¾ÓÐ¸÷×ÔµÄ»Øµ÷º¯Êý¡£
-//Èç¹û¶ÔÏß³ÌÓ¦ÓÃ²»Ì«ÊìÁ·µÄ¿ª·¢Õß£¬¾¡Á¿²»ÒªÓÃÒ»¸ö»Øµ÷º¯ÊýÍ¬Ê±½ÓÊÕÁ½¸öÕ¾µÄÊý¾Ý£¬ÄÇÑù»áÊ¹ÄãµÄ³ÌÐò±äµÃ¸´ÔÓ¡£
+//ä»¥ä¸‹æ˜¯webstocketå›žè°ƒï¼Œç”±äºŽå›½é™…ç«™å’Œå›½å†…ç«™åˆ†åˆ«æ˜¯ä¸¤ä¸ªè¿žæŽ¥ï¼Œ
+//ä¹Ÿå°±æ˜¯æ•°æ®æ˜¯ç”±ä¸¤ä¸ªçº¿ç¨‹å‘å‡ºçš„ï¼Œæ•…å›½é™…ç«™å’Œå›½å†…ç«™æœ‰å„è‡ªçš„å›žè°ƒå‡½æ•°ã€‚
+//å¦‚æžœå¯¹çº¿ç¨‹åº”ç”¨ä¸å¤ªç†Ÿç»ƒçš„å¼€å‘è€…ï¼Œå°½é‡ä¸è¦ç”¨ä¸€ä¸ªå›žè°ƒå‡½æ•°åŒæ—¶æŽ¥æ”¶ä¸¤ä¸ªç«™çš„æ•°æ®ï¼Œé‚£æ ·ä¼šä½¿ä½ çš„ç¨‹åºå˜å¾—å¤æ‚ã€‚
 void cn_callbak_open()
 {
-	//Ïò·þÎñÆ÷·¢ËÍÃüÁî
+	//å‘æœåŠ¡å™¨å‘é€å‘½ä»¤
 	
-	std::cout << "¹úÄÚÕ¾Á¬½Ó³É¹¦£¡3ÃëÖÓºó¿ªÊ¼½ÓÊÕÊý¾Ý£¬ÊäÈë3¶Ï¿ªÁ¬½Ó¡£ " << std::endl;
+	std::cout << "å›½å†…ç«™è¿žæŽ¥æˆåŠŸï¼3ç§’é’ŸåŽå¼€å§‹æŽ¥æ”¶æ•°æ®ï¼Œè¾“å…¥3æ–­å¼€è¿žæŽ¥ã€‚ " << std::endl;
 	Sleep(3000);
-	//Á¬½Ó³É¹¦ºóÁ¢¼´½ÓÊÕtickºÍdepthÊý¾Ý
-	//ÁíÍâ£¬°Ñ½ÓÊÕÐÐÇéÊý¾ÝÇëÇó·ÅÔÚopen»Øµ÷Àï×÷ÓÃÔÚÓÚ:
-	//µ±ÒâÍâ¶Ï¿ª£¬ÖØÐÂÁ¬½Óºó´¥·¢±¾»Øµ÷¿É×Ô¶¯·¢ËÍ½ÓÊÕÇëÇó¡£
-	//ËùÒÔ¾¡Á¿Òª°ÑÐÐÇéÀàµÄ½ÓÊÕÇëÇó·ÅÔÚ±¾»Øµ÷Àï¡£
+	//è¿žæŽ¥æˆåŠŸåŽç«‹å³æŽ¥æ”¶tickå’Œdepthæ•°æ®
+	//å¦å¤–ï¼ŒæŠŠæŽ¥æ”¶è¡Œæƒ…æ•°æ®è¯·æ±‚æ”¾åœ¨openå›žè°ƒé‡Œä½œç”¨åœ¨äºŽ:
+	//å½“æ„å¤–æ–­å¼€ï¼Œé‡æ–°è¿žæŽ¥åŽè§¦å‘æœ¬å›žè°ƒå¯è‡ªåŠ¨å‘é€æŽ¥æ”¶è¯·æ±‚ã€‚
+	//æ‰€ä»¥å°½é‡è¦æŠŠè¡Œæƒ…ç±»çš„æŽ¥æ”¶è¯·æ±‚æ”¾åœ¨æœ¬å›žè°ƒé‡Œã€‚
 	if(cnapi != 0)
 	{
-		cnapi->ok_btccny_ticker();
-		cnapi->ok_btccny_depth();
+		cnapi->ok_spotcny_btc_ticker();
+		cnapi->ok_spotcny_btc_depth_20();
 	}
-	
 };
 void cn_callbak_close()
 {
-	std::cout << "Á¬½ÓÒÑ¾­¶Ï¿ª£¡ " << std::endl;
+	std::cout << "è¿žæŽ¥å·²ç»æ–­å¼€ï¼ " << std::endl;
 };
 void cn_callbak_message(const char *message)
 {
@@ -38,24 +36,22 @@ void cn_callbak_message(const char *message)
 
 void com_callbak_open()
 {
-	//Ïò·þÎñÆ÷·¢ËÍÃüÁî
+	//å‘æœåŠ¡å™¨å‘é€å‘½ä»¤
 	
-	std::cout << "¹ú¼ÊÕ¾Á¬½Ó³É¹¦£¡3ÃëÖÓºó¿ªÊ¼½ÓÊÕÊý¾Ý£¬ÊäÈë3¶Ï¿ªÁ¬½Ó¡£ " << std::endl;
+	std::cout << "å›½é™…ç«™è¿žæŽ¥æˆåŠŸï¼3ç§’é’ŸåŽå¼€å§‹æŽ¥æ”¶æ•°æ®ï¼Œè¾“å…¥3æ–­å¼€è¿žæŽ¥ã€‚ " << std::endl;
 	Sleep(3000);
-	//Á¬½Ó³É¹¦ºóÁ¢¼´½ÓÊÕtickºÍdepthÊý¾Ý
-	//ÁíÍâ£¬°Ñ½ÓÊÕÐÐÇéÊý¾ÝÇëÇó·ÅÔÚopen»Øµ÷Àï×÷ÓÃÔÚÓÚ:
-	//µ±ÒâÍâ¶Ï¿ª£¬ÖØÐÂÁ¬½Óºó´¥·¢±¾»Øµ÷¿É×Ô¶¯·¢ËÍ½ÓÊÕÇëÇó¡£
-	//ËùÒÔ¾¡Á¿Òª°ÑÐÐÇéÀàµÄ½ÓÊÕÇëÇó·ÅÔÚ±¾»Øµ÷Àï¡£
+	//è¿žæŽ¥æˆåŠŸåŽç«‹å³æŽ¥æ”¶tickå’Œdepthæ•°æ®
+	//å¦å¤–ï¼ŒæŠŠæŽ¥æ”¶è¡Œæƒ…æ•°æ®è¯·æ±‚æ”¾åœ¨openå›žè°ƒé‡Œä½œç”¨åœ¨äºŽ:
+	//å½“æ„å¤–æ–­å¼€ï¼Œé‡æ–°è¿žæŽ¥åŽè§¦å‘æœ¬å›žè°ƒå¯è‡ªåŠ¨å‘é€æŽ¥æ”¶è¯·æ±‚ã€‚
+	//æ‰€ä»¥å°½é‡è¦æŠŠè¡Œæƒ…ç±»çš„æŽ¥æ”¶è¯·æ±‚æ”¾åœ¨æœ¬å›žè°ƒé‡Œã€‚
 	if(comapi != 0)
 	{
-		comapi->ok_btcusd_ticker();
-		comapi->ok_btcusd_depth();
+		comapi->ok_spotusd_btc_ticker();
 	}
-	
 };
 void com_callbak_close()
 {
-	std::cout << "Á¬½ÓÒÑ¾­¶Ï¿ª£¡ " << std::endl;
+	std::cout << "è¿žæŽ¥å·²ç»æ–­å¼€ï¼ " << std::endl;
 };
 void com_callbak_message(const char *message)
 {
@@ -64,77 +60,61 @@ void com_callbak_message(const char *message)
 
 int main(int argc, char* argv[]) 
 {	
-	
-	//ÊµÀý»¯API
-	std::string cn_apiKey		= "";									//Çëµ½www.okcoin.cnÉêÇë¡£
-	std::string cn_secretKey		= "";								//Çëµ½www.okcoin.cnÉêÇë¡£
-	cnapi = new OKCoinWebSocketApiCn(cn_apiKey,cn_secretKey);			//¹úÄÚÕ¾
+	/*
+	//å®žä¾‹åŒ–API
+	std::string cn_apiKey		= "";									//è¯·åˆ°www.okcoin.cnç”³è¯·ã€‚
+	std::string cn_secretKey		= "";								//è¯·åˆ°www.okcoin.cnç”³è¯·ã€‚
+	cnapi = new OKCoinWebSocketApiCn(cn_apiKey,cn_secretKey);			//å›½å†…ç«™
 	cnapi->SetCallBackOpen(cn_callbak_open);
 	cnapi->SetCallBackClose(cn_callbak_close);
 	cnapi->SetCallBackMessage(cn_callbak_message);
-	cnapi->Run();//Æô¶¯Á¬½Ó·þÎñÆ÷Ïß³Ì
-	
+	cnapi->Run();//å¯åŠ¨è¿žæŽ¥æœåŠ¡å™¨çº¿ç¨‹
+	*/
 
-	std::string com_apiKey		= "";			//Çëµ½www.okcoin.comÉêÇë¡£
-	std::string com_secretKey	= "";			//Çëµ½www.okcoin.comÉêÇë¡£
-	comapi = new OKCoinWebSocketApiCom(com_apiKey,com_secretKey);				//¹ú¼ÊÕ¾
+	std::string com_apiKey		= "";									//è¯·åˆ°www.okcoin.comç”³è¯·ã€‚
+	std::string com_secretKey	= "";									//è¯·åˆ°www.okcoin.comç”³è¯·ã€‚
+	comapi = new OKCoinWebSocketApiCom(com_apiKey,com_secretKey);		//å›½é™…ç«™
 	comapi->SetCallBackOpen(com_callbak_open);
 	comapi->SetCallBackClose(com_callbak_close);
 	comapi->SetCallBackMessage(com_callbak_message);
-	comapi->Run();//Æô¶¯Á¬½Ó·þÎñÆ÷Ïß³Ì
+	comapi->Run();//å¯åŠ¨è¿žæŽ¥æœåŠ¡å™¨çº¿ç¨‹
 	
 	Sleep(3000);
 
-
-	cout << "ÊäÈë1²âÊÔÏÂµ¥¹¦ÄÜ£¬ÊäÈë2×¢ÏúÊý¾Ý½ÓÊÕÇëÇó£¬ÊäÈë3¹Ø±ÕÁ¬½Ó£¬ÇëÊäÈë£º";
+	cout << "è¾“å…¥1è®¢é˜…æ¯”ç‰¹å¸å½“å‘¨åˆçº¦è¡Œæƒ…ï¼Œè¾“å…¥2è®¢é˜…æ¯”ç‰¹å¸æœŸè´§æŒ‡æ•°ï¼Œè¾“å…¥3å–æ¶ˆè®¢é˜…ï¼Œè¾“å…¥4å…³é—­è¿žæŽ¥ï¼Œè¯·è¾“å…¥ï¼š";
 	string i;
 	cin >> i;
 	if(i == "1")
 	{
-		//ÆÚ»õÏÂµ¥²âÊÔ
-		string symbolcom		=		"ltc_usd";
-		string type				=		"buy";//ÂòÂôÀàÐÍ£º ÏÞ¼Ûµ¥£¨buy/sell£© ÊÐ¼Ûµ¥£¨buy_market/sell_market£©
-		string price			=		"1";
-		string amount			=		"0.1";
-		comapi->ok_spotusd_trade(symbolcom,type,price,amount);	//ÏÂµ¥½»Ò×
-
-		string order_id	= "33732079";
-		comapi->ok_spotusd_cancel_order(symbolcom,order_id);	//È¡Ïû¶©µ¥
-		system("pause");
+		comapi->ok_futureusd_btc_ticker_this_week();
+	}
+	
+	if(i == "2")
+	{
+		comapi->ok_futureusd_btc_ticker_this_week();
 	}
 
-	//¶ÔÓÚÒÑ¾­×¢²áµÄÊý¾ÝÔÚ²»ÐèÒªÊ±×¢Ïúµô£¬²»ÔÙ½ÓÊÕ£¬
-	//×¢²áÊý¾ÝÌ«¶à¶ø·Ç±ØÒªÊý¾Ý£¬»áÊ¹ÄúµÄ³ÌÐòÕûÈ«ÐÔÄÜÏÂ½µ£¬Çë¿ª·¢Õß×¢Òâ´¦Àí¡£
-	if(i == "2")
+	//å¯¹äºŽå·²ç»æ³¨å†Œçš„æ•°æ®åœ¨ä¸éœ€è¦æ—¶æ³¨é”€æŽ‰ï¼Œä¸å†æŽ¥æ”¶ï¼Œ
+	//æ³¨å†Œå¤ªå¤šéžå¿…è¦æ•°æ®ï¼Œä¼šä½¿æ‚¨çš„ç¨‹åºæ•´ä½“æ€§èƒ½ä¸‹é™ï¼Œè¯·å¼€å‘è€…æ³¨æ„å¤„ç†ã€‚
+	if(i == "3")
 	{
 		if(comapi != 0)
 		{
-			cnapi->remove_ok_btccny_ticker();
-			cnapi->remove_ok_btccny_depth();
-		}
-
-
-		if(comapi != 0)
-		{
-			comapi->remove_ok_btcusd_ticker();
-			comapi->remove_ok_btcusd_depth();
+			comapi->remove_ok_spotusd_btc_ticker();
 		}
 		system("pause");
 	}
 
-	//¹Ø±ÕÁ¬½Ó
-	cnapi->Close();	
+	//å…³é—­è¿žæŽ¥
+	//cnapi->Close();	
 	comapi->Close();
 
-
 	system("pause");
 
-	//ÊÍ·ÅAPIÊµÀý
-	delete cnapi;
+	//é‡Šæ”¾APIå®žä¾‹
+	//delete cnapi;
 	delete comapi;
-	cout << "ÊÍ·ÅAPIÊµÀýÍê³É¡£";
+	cout << "é‡Šæ”¾APIå®žä¾‹å®Œæˆã€‚";
 
 	system("pause");
-
 }
-

@@ -34,29 +34,29 @@ WebSocket使用说明：
   
 4.调用相关方法获取相应数据：
 
-  1)订阅市场行情
-	client.addChannel("ok_btccny_ticker");
-		
-  2)取消订阅
-    client.removeChannel("ok_btccny_ticker");
-		
+  1)订阅比特币市场行情
+    client.addChannel("ok_sub_spotusd_btc_ticker");
+
+  2)取消订阅比特币市场行情
+    client.removeChannel("ok_sub_spotusd_btc_ticker");
+
   3)期货下单交易
-    client.futureTrade(apiKey, secretKey, "btc_cny", "this_week", 2.3, 2, 1, 0, 10);
-		
+    client.futureTrade(apiKey, secretKey, "btc_usd", "this_week", 2.3, 2, 1, 0, 10);
+
   4)实时交易数据   apiKey
     client.futureRealtrades(apiKey, secretKey);
-		
+
   5)取消期货交易
-	client.cancleFutureOrder(apiKey, secretKey, "btc_cny", 123456L, "this_week");
-		
+    client.cancelFutureOrder(apiKey, secretKey, "btc_usd", 123456L, "this_week");
+
   6)现货下单交易
-    client.spotTrade(apiKey, secretKey, "btc_cny", 3.2, 2.3, "buy");
-		
+    client.spotTrade(apiKey, secretKey, "btc_usd", 3.2, 2.3, "buy");
+
   7)现货交易数据
-	client.realTrades(apiKey, secretKey);
-		
+    client.realTrades(apiKey, secretKey);
+
   8)现货取消订单
-	client.cancleOrder(apiKey, secretKey, "btc_cny", 123L);
-			
+    client.cancelOrder(apiKey, secretKey, "btc_usd", 123L);
+
   9)获取用户信息
-	client.getUserInfo(apiKey,secretKey);
+    client.getUserInfo(apiKey,secretKey);
