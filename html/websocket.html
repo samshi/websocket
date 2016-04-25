@@ -232,7 +232,7 @@
   function init(){
     buy_orders  = {};
     sell_orders = {};
-    E = Math.E;
+    E           = Math.E;
     spotUserInfo();
     spotSubTrades();
     spotSubUserinfos();
@@ -304,9 +304,9 @@
     switch(channel){
       case 'ok_spotcny_userinfo':
         var funds = data.data.info.funds;
-        total     = funds.asset.total;
-        cny       = funds.free.cny;
-        btc       = funds.free.btc;
+        total     = +funds.asset.total;
+        cny       = +funds.free.cny;
+        btc       = +funds.free.btc;
         break;
       case 'ok_spotcny_orderinfo':
         /*
@@ -352,7 +352,16 @@
           console.log(data);
           if(data.status == 2){
             cancelAllOrders();
-            var price = +data.averagePrice;
+            var price       = +data.averagePrice;
+            var tradeAmount = +data.tradeAmount;
+            if(data.tradeType == 'buy'){
+              btc += tradeAmount;
+              //cny 已经是扣除了冻结的部分
+            }
+            else{
+              cny += tradeAmount * price;
+              //btc 已经是扣除了冻结的部分
+            }
             spotTrade(fixTo2(btc / E), fixTo2(price + E), 'sell');
             spotTrade(fixTo2(cny / price / E), fixTo2(price - E), 'buy');
 
