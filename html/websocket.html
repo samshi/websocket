@@ -58,6 +58,10 @@
     <td id="ok_sub_spotcny_trades" onclick="getData(this)">ok_sub_spotcny_trades</td>
     <td></td>
   </tr>
+  <tr>
+    <td id="ok_sub_spotcny_userinfo" onclick="getData(this)">ok_sub_spotcny_userinfo</td>
+    <td></td>
+  </tr>
 </table>
 </body>
 </html>
@@ -227,7 +231,7 @@
   function init(){
     buy_orders  = {};
     sell_orders = {};
-    spotOrderInfo();
+    spotUserinfos();
     spotSubTrades();
   }
 
@@ -265,6 +269,11 @@
   //订阅交易数据
   function spotSubTrades(){
     mySend('ok_sub_spotcny_trades');
+  }
+
+  //订阅账户信息
+  function spotUserinfos(){
+    mySend('ok_sub_spotcny_userinfo');
   }
 
   function onMessage(e){
@@ -333,8 +342,8 @@
           if(data.status == 2){
             cancelAllOrders();
             var price = $.R(data.averagePrice/5)*5;
-            spotTrade(0.01, price+5, 'sell');
             spotTrade(0.01, price-5, 'buy');
+            spotTrade(0.01, price+5, 'sell');
           }
         }
         node.nextElementSibling.title = [
@@ -408,6 +417,9 @@
         break;
       case 'ok_sub_spotcny_trades':
         spotSubTrades();
+        break;
+      case 'ok_sub_spotcny_userinfo':
+        spotUserinfos();
         break;
       default:
         myChannel(channel);
