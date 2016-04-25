@@ -14,13 +14,13 @@
 <div id="status"></div>
 <table border="1">
   <tr>
-    <td id="ok_sub_spotcny_btc_ticker" onclick="getData(this)">ok_sub_spotcny_btc_ticker</td>
+    <td id="ok_sub_spotcny_btc_kline_5min" onclick="getData(this)">ok_sub_spotcny_btc_kline_5min</td>
     <td></td>
   </tr>
-  <tr>
-    <td id="ok_sub_spotcny_btc_kline_1min" onclick="getData(this)">ok_sub_spotcny_btc_kline_1min</td>
-    <td></td>
-  </tr>
+  <!--<tr>-->
+  <!--<td id="ok_sub_spotcny_btc_kline_1min" onclick="getData(this)">ok_sub_spotcny_btc_kline_1min</td>-->
+  <!--<td></td>-->
+  <!--</tr>-->
   <!--<tr>-->
   <!--<td></td>-->
   <!--<td id="orderinfo" onclick="getData(this)">orderinfo</td>-->
@@ -44,7 +44,7 @@
     <td rowspan="2"></td>
   </tr>
   <tr>
-    <td><select id="cancel_order_orderId"></select></td>
+    <td><select id="cancel_order_orderId" multiple="multiple" SIZE="2"></select></td>
   </tr>
   <tr>
     <td id="ok_spotcny_userinfo" onclick="getData(this)">ok_spotcny_userinfo</td>
@@ -231,8 +231,10 @@
   function init(){
     buy_orders  = {};
     sell_orders = {};
-    spotUserinfos();
+    spotUserInfo();
     spotSubTrades();
+    spotSubUserinfos();
+    myChannel('ok_sub_spotcny_btc_kline_5min');
   }
 
   //现货下单
@@ -272,7 +274,7 @@
   }
 
   //订阅账户信息
-  function spotUserinfos(){
+  function spotSubUserinfos(){
     mySend('ok_sub_spotcny_userinfo');
   }
 
@@ -290,7 +292,7 @@
         if(node){
           node.nextElementSibling.innerHTML = '<pre>' + showObj(array[i].data || array[i]) + '</pre>';
 
-          setTrade(channel, array[i].data, node);
+          setTrade(channel, array[i], node);
         }
       }
     }
@@ -298,6 +300,12 @@
 
   function setTrade(channel, data, node){
     switch(channel){
+      case 'ok_spotcny_userinfo':
+        var funds = data.data.info.funds;
+        total     = funds.asset.total;
+        cny       = funds.free.cny;
+        btc       = funds.free.btc;
+        break;
       case 'ok_spotcny_orderinfo':
         /*
          {
@@ -313,7 +321,7 @@
          "type"       : "buy"
          }
          */
-        var orders      = data.orders;
+        var orders      = data.data.orders;
         var order;
         var select_node = $('#cancel_order_orderId').I();
 
@@ -337,13 +345,31 @@
         break;
       case 'ok_sub_spotcny_trades':
         spotOrderInfo();
+        var data = data.data;
         if(data){
           console.log(data);
           if(data.status == 2){
             cancelAllOrders();
-            var price = $.R(data.averagePrice/5)*5;
-            spotTrade(0.01, price-5, 'buy');
-            spotTrade(0.01, price+5, 'sell');
+            var price = +data.averagePrice;
+            spotTrade($.R(btc / Math.E * 100) / 100, price + 3, 'sell');
+            spotTrade($.R(cny / price / Math.E * 100) / 100, price - 3, 'buy');
+
+            //            var rate  = cny / total;
+            //            if(rate<1-0.618){
+            //              //现金很少, 说明到高位了
+            //              spotTrade(0.01, price + 5, 'sell');
+            //              spotTrade(0.01, price - 3, 'buy');
+            //            }
+            //            else if(rate>0.618){
+            //              //现金很多, 说明到低位了
+            //              spotTrade(0.01, price + 3, 'sell');
+            //              spotTrade(0.01, price - 5, 'buy');
+            //            }
+            //            else{
+            //              spotTrade(0.01, price - 3, 'buy');
+            //              spotTrade(0.01, price + 3, 'sell');
+            //            }
+
           }
         }
         node.nextElementSibling.title = [
@@ -361,7 +387,10 @@
           'unTrade:当按市场价买币时表示剩余金额，其他情况表示此笔交易剩余买/卖币的数量',
           'status:-1已撤销,0等待成交,1部分成交,2完全成交,4撤单处理中'
         ].join("\n");
-
+        break;
+      case 'ok_sub_spotcny_userinfo':
+        spotUserInfo();
+        break;
     }
   }
 
@@ -419,7 +448,7 @@
         spotSubTrades();
         break;
       case 'ok_sub_spotcny_userinfo':
-        spotUserinfos();
+        spotSubUserinfos();
         break;
       default:
         myChannel(channel);
