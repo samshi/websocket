@@ -11,6 +11,7 @@
 
 <body>
 <h2 id="th2">WebSocket Test</h2>
+
 <div id="status"></div>
 <table border="1">
   <tr>
@@ -231,6 +232,7 @@
   function init(){
     buy_orders  = {};
     sell_orders = {};
+    E = Math.E;
     spotUserInfo();
     spotSubTrades();
     spotSubUserinfos();
@@ -345,14 +347,14 @@
         break;
       case 'ok_sub_spotcny_trades':
         spotOrderInfo();
-        var data = data.data;
+        var data  = data.data;
         if(data){
           console.log(data);
           if(data.status == 2){
             cancelAllOrders();
             var price = +data.averagePrice;
-            spotTrade($.R(btc / Math.E * 100) / 100, price + 3, 'sell');
-            spotTrade($.R(cny / price / Math.E * 100) / 100, price - 3, 'buy');
+            spotTrade(fixTo2(btc / E), fixTo2(price + E), 'sell');
+            spotTrade(fixTo2(cny / price / E), fixTo2(price - E), 'buy');
 
             //            var rate  = cny / total;
             //            if(rate<1-0.618){
@@ -394,6 +396,9 @@
     }
   }
 
+  function fixTo2(n){
+    return $.R(n * 100) / 100;
+  }
   function cancelAllOrders(){
     for(var order_id in buy_orders){
       spotCancelOrder(order_id);
