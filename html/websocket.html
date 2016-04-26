@@ -97,12 +97,12 @@
   function checkConnect(){
     okCoinWebSocket.websocket.send("{'event':'ping'}");
     if((new Date().getTime() - okCoinWebSocket.lastHeartBeat) > okCoinWebSocket.overtime){
-      console.log("socket 连接断开，正在尝试重新建立连接");
+      console.error("socket 连接断开，正在尝试重新建立连接");
     }
   }
 
   function doSend(message){
-    console.log("SENT: " + message);
+    //    console.log("SENT: " + message);
     okCoinWebSocket.websocket.send(message);
   }
 
@@ -225,7 +225,7 @@
       return typeof(obj) == 'object' && obj && obj.constructor == Object;
     }
     catch(e){
-      console.log(obj);
+      console.error(obj);
     }
   }
 
@@ -236,7 +236,7 @@
     spotUserInfo();
     spotSubTrades();
     spotSubUserinfos();
-    myChannel('ok_sub_spotcny_btc_kline_5min');
+//    myChannel('ok_sub_spotcny_btc_kline_5min');
   }
 
   //现货下单
@@ -347,20 +347,24 @@
         break;
       case 'ok_sub_spotcny_trades':
         spotOrderInfo();
-        var data  = data.data;
+        var data = data.data;
         if(data){
-          console.log(data);
           if(data.status == 2){
             cancelAllOrders();
             var price       = +data.averagePrice;
             var tradeAmount = +data.tradeAmount;
+            var date        = data.createdDate;
+            var type        = data.tradeType;
+            console.log(channel, price, tradeAmount, date, type);
             if(data.tradeType == 'buy'){
               btc += tradeAmount;
               //cny 已经是扣除了冻结的部分
+              //bug: 没有返回冻结的btc
             }
             else{
               cny += tradeAmount * price;
               //btc 已经是扣除了冻结的部分
+              //bug: 没有返回冻结的cny
             }
             spotTrade(fixTo2(btc / E), fixTo2(price + E), 'sell');
             spotTrade(fixTo2(cny / price / E), fixTo2(price - E), 'buy');
@@ -420,20 +424,6 @@
   function getData(node){
     var channel = node.id;
     switch(channel){
-      case 'orderinfo':
-        $.get('php/Example.php', {api: 'orderinfo'}, function(result){
-          console.log(result);
-          var obj = JSON.parse(result);
-          onMessage({
-            data: JSON.stringify([
-              {
-                channel: channel,
-                data   : obj
-              }
-            ])
-          });
-        });
-        break;
       case 'ok_spotcny_trade':
         var amount     = $('#amount').val() || 0.01;
         var price      = $('#price').val() || 2800;

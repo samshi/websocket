@@ -172,3 +172,20 @@ function futurePositions(){
   doSend("{'event':'addChannel','channel':'ok_sub_futurecny_positions','parameters' :{'api_key':'"
     + okCoinWebSocket.apiKey + "','sign':'" + sign + "'}}");
 }
+
+/*
+ case 'orderinfo':
+ $.get('php/Example.php', {api: 'orderinfo'}, function(result){
+ console.log(result);
+ var obj = JSON.parse(result);
+ onMessage({
+ data: JSON.stringify([
+ {
+ channel: channel,
+ data   : obj
+ }
+ ])
+ });
+ });
+ break;
+ */
