@@ -15,7 +15,7 @@
 <div id="status"></div>
 <table border="1">
   <tr>
-    <td id="ok_sub_spotcny_btc_kline_5min" onclick="getData(this)">ok_sub_spotcny_btc_kline_5min</td>
+    <td id="ok_sub_spotcny_btc_kline_1min" onclick="getData(this)">ok_sub_spotcny_btc_kline_1min</td>
     <td></td>
   </tr>
   <!--<tr>-->
@@ -232,11 +232,12 @@
   function init(){
     buy_orders  = {};
     sell_orders = {};
+    trade       = {};
     E           = Math.E;
     spotUserInfo();
     spotSubTrades();
     spotSubUserinfos();
-    myChannel('ok_sub_spotcny_btc_kline_5min');
+    myChannel('ok_sub_spotcny_btc_kline_1min');
   }
 
   //现货下单
@@ -302,11 +303,11 @@
 
   function setTrade(channel, data, node){
     switch(channel){
-      case 'ok_sub_spotcny_btc_kline_5min':
+      case 'ok_sub_spotcny_btc_kline_1min':
         if(data.data){
           var time  = data.data[0];
           var close = +data.data[4];
-//          console.log(myTime(time), close);
+          //          console.log(myTime(time), close);
           if(trade.sell_amount > 0 && close > trade.sell_price){
             spotTrade(trade.sell_amount, trade.sell_price, 'sell');
           }
@@ -365,27 +366,26 @@
         if(data){
           if(data.status == 2){
             cancelAllOrders();
+            var trade_price = +data.averagePrice;
             trade = {
-              price      : +data.averagePrice,
+              price      : trade_price,
               tradeAmount: +data.tradeAmount,
               time       : data.createdDate,
               type       : data.tradeType,
-              max        : total / price / 6,   //限定每次交易量上限
-              jump       : price * 0.002,       //每次买卖点间隔为jump两倍
+              max        : total / trade_price / 6,   //限定每次交易量上限
+              jump       : trade_price * 0.001,       //每次买卖点间隔为jump两倍
               sell_amount: 0,
               buy_amount : 0
             };
 
-            console.log(channel, price, tradeAmount, myTime(time), type);
-
             setTimeout(function(){
               if(trade.type == 'buy'){
                 //价格下移
-                trade.price *= 0.999;
+                //                trade_price.price *= 0.999;
               }
               else{
                 //价格上移
-                trade.price *= 1.001;
+                //                trade_price.price *= 1.001;
               }
 
               trade.sell_price  = fixTo2(trade.price + trade.jump);
@@ -393,6 +393,9 @@
 
               trade.buy_price  = fixTo2(trade.price - trade.jump);
               trade.buy_amount = fixTo2(Math.min(trade.max, cny / trade.price / E));
+
+              console.log(trade);
+
             }, 5000);
           }
         }
