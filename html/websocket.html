@@ -355,7 +355,7 @@
             var tradeAmount = +data.tradeAmount;
             var date        = data.createdDate;
             var type        = data.tradeType;
-            console.log(channel, price, tradeAmount, date, type);
+            console.log(channel, price, tradeAmount, (new Date(date)).toLocaleString() , type);
             if(data.tradeType == 'buy'){
               btc += tradeAmount;
               //cny 已经是扣除了冻结的部分
