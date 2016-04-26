@@ -236,7 +236,7 @@
     spotUserInfo();
     spotSubTrades();
     spotSubUserinfos();
-//    myChannel('ok_sub_spotcny_btc_kline_5min');
+    //    myChannel('ok_sub_spotcny_btc_kline_5min');
   }
 
   //现货下单
@@ -353,38 +353,26 @@
             cancelAllOrders();
             var price       = +data.averagePrice;
             var tradeAmount = +data.tradeAmount;
-            var date        = data.createdDate;
+            var time        = data.createdDate;
             var type        = data.tradeType;
-            console.log(channel, price, tradeAmount, (new Date(date)).toLocaleString() , type);
+            var max         = total / price / 6;  //限定每次交易量上限
+            var jump        = price * 0.002;      //每次买卖点间隔为jump两倍
+            console.log(channel, price, tradeAmount, (new Date(time)).toLocaleString(), type);
             if(data.tradeType == 'buy'){
-              btc += tradeAmount;
-              //cny 已经是扣除了冻结的部分
-              //bug: 没有返回冻结的btc
+              //价格下移
+              price *= 0.999;
             }
             else{
-              cny += tradeAmount * price;
-              //btc 已经是扣除了冻结的部分
-              //bug: 没有返回冻结的cny
+              //价格上移
+              price *= 1.001;
             }
-            spotTrade(fixTo2(btc / E), fixTo2(price + E), 'sell');
-            spotTrade(fixTo2(cny / price / E), fixTo2(price - E), 'buy');
 
-            //            var rate  = cny / total;
-            //            if(rate<1-0.618){
-            //              //现金很少, 说明到高位了
-            //              spotTrade(0.01, price + 5, 'sell');
-            //              spotTrade(0.01, price - 3, 'buy');
-            //            }
-            //            else if(rate>0.618){
-            //              //现金很多, 说明到低位了
-            //              spotTrade(0.01, price + 3, 'sell');
-            //              spotTrade(0.01, price - 5, 'buy');
-            //            }
-            //            else{
-            //              spotTrade(0.01, price - 3, 'buy');
-            //              spotTrade(0.01, price + 3, 'sell');
-            //            }
-
+//            last_trade_time= time;
+            //延迟执行, 防止价格快速移动引起交易
+            setTimeout(function(){
+              spotTrade(fixTo2(Math.min(max, btc / E)), fixTo2(price + jump), 'sell');
+              spotTrade(fixTo2(Math.min(max, cny / price / E)), fixTo2(price - jump), 'buy');
+            }, 5000);
           }
         }
         node.nextElementSibling.title = [
