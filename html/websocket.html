@@ -397,8 +397,8 @@
               tradeAmount: +data.tradeAmount,
               time       : data.createdDate,
               type       : data.tradeType,
-              max        : total / trade_price / 6,   //限定每次交易量上限
-              jump       : trade_price * 0.001,       //每次买卖点间隔为jump两倍
+              //              max        : total / trade_price / 6,   //限定每次交易量上限
+              jump       : 1, //trade_price * 0.0005,       //每次买卖点间隔为jump两倍
               sell_amount: 0,
               buy_amount : 0
             };
@@ -406,22 +406,22 @@
             setTimeout(function(){
               if(trade.type == 'buy'){
                 //价格下移
-                trade.price *= 1-0.0003;
+                //trade.price *= 1-0.0003;
               }
               else{
                 //价格上移
-                trade.price *= 1+0.0003;
+                //trade.price *= 1+0.0003;
               }
 
               trade.sell_price  = fixTo2(trade.price + trade.jump);
-              trade.sell_amount = fixTo2(Math.min(trade.max, btc / E));
+              trade.sell_amount = fixTo2(btc / 2);
 
               trade.buy_price  = fixTo2(trade.price - trade.jump);
-              trade.buy_amount = fixTo2(Math.min(trade.max, cny / trade.price / E));
+              trade.buy_amount = fixTo2(cny / trade.price / 2);
 
               console.log(channel, trade);
 
-            }, 15000);
+            }, 1000);
           }
         }
         node.nextElementSibling.title = [
