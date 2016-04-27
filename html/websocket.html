@@ -68,6 +68,7 @@
 </body>
 </html>
 <script type="text/javascript">
+  var SS = localStorage;
   var okCoinWebSocket = {};
   okCoinWebSocket.init = function(uri, apiKey, secretKey){
     this.wsUri         = uri;
@@ -323,14 +324,14 @@
           var time  = data.data[0];
           var close = +data.data[4];
           //          console.log(myTime(time), close);
-          if(trade.sell_amount > 0 && close > trade.sell_price){
-            spotTrade(trade.sell_amount, trade.sell_price - 10, 'sell');
-            trade.sell_amount = 0;
+          if(SS.sell_amount > 0 && close > +ss.sell_price){
+            spotTrade(SS.sell_amount, SS.sell_price - 10, 'sell');
+            SS.sell_amount = 0;
           }
 
-          if(trade.buy_amount > 0 && close < trade.buy_price){
-            spotTrade(trade.buy_amount, trade.buy_price + 10, 'buy');
-            trade.buy_amount = 0;
+          if(SS.buy_amount > 0 && close < +SS.buy_price){
+            spotTrade(SS.buy_amount, SS.buy_price * 1 + 10, 'buy');
+            SS.buy_amount = 0;
           }
         }
         break;
@@ -419,12 +420,17 @@
               trade.buy_price  = fixTo2(trade.price - trade.jump);
               trade.buy_amount = fixTo2(cny / trade.price / 2);
 
-              if(trade.sell_amount==0){
+              if(trade.sell_amount == 0){
                 trade.buy_price += 10;
               }
-              else if(trade.buy_amount==0){
+              else if(trade.buy_amount == 0){
                 trade.sell_price -= 10;
               }
+
+              SS.sell_price  = trade.sell_price;
+              SS.sell_amount = trade.sell_amount;
+              SS.buy_price   = trade.buy_price;
+              SS.buy_amount  = trade.buy_amount;
 
               console.log(channel, trade);
 
