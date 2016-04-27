@@ -324,7 +324,7 @@
           var time  = data.data[0];
           var close = +data.data[4];
           //          console.log(myTime(time), close);
-          if(SS.sell_amount > 0 && close > +ss.sell_price){
+          if(SS.sell_amount > 0 && close > +SS.sell_price){
             spotTrade(SS.sell_amount, SS.sell_price - 10, 'sell');
             SS.sell_amount = 0;
           }
@@ -396,7 +396,7 @@
               trade_price: trade_price,
               price      : trade_price,
               tradeAmount: +data.tradeAmount,
-              time       : data.createdDate,
+              time       : myTime(data.createdDate),
               type       : data.tradeType,
               //              max        : total / trade_price / 6,   //限定每次交易量上限
               jump       : 1, //trade_price * 0.0005,       //每次买卖点间隔为jump两倍
@@ -421,10 +421,10 @@
               trade.buy_amount = fixTo2(cny / trade.price / 2);
 
               if(trade.sell_amount == 0){
-                trade.buy_price += 10;
+                trade.buy_price += 100;
               }
               else if(trade.buy_amount == 0){
-                trade.sell_price -= 10;
+                trade.sell_price -= 100;
               }
 
               SS.sell_price  = trade.sell_price;
@@ -432,7 +432,7 @@
               SS.buy_price   = trade.buy_price;
               SS.buy_amount  = trade.buy_amount;
 
-              console.log(channel, trade);
+              console.log(trade.time, trade_price, trade.tradeAmount, trade.type, SS);
 
             }, 1000);
           }
@@ -513,4 +513,8 @@
         myChannel(channel);
     }
   }
+
+  setTimeout(function(){
+    window.location.reload();
+  }, 600000);
 </script>
