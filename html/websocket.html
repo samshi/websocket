@@ -336,10 +336,17 @@
         }
         break;
       case 'ok_spotcny_userinfo':
-        var funds = data.data.info.funds;
-        total     = +funds.asset.total;
-        cny       = +funds.free.cny;
-        btc       = +funds.free.btc;
+        try{
+          var funds = data.data.info.funds;
+          total     = +funds.asset.total;
+          cny       = +funds.free.cny;
+          btc       = +funds.free.btc;
+        }
+        catch(e){
+          console.error(e, data);
+          spotUserInfo();
+        }
+
         break;
       case 'ok_spotcny_orderinfo':
         /*
@@ -360,7 +367,7 @@
           var orders = data.data.orders;
         }
         catch(e){
-          console.error(e);
+          console.error(e, data);
           var orders = [];
         }
 
