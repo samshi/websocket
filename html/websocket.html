@@ -36,7 +36,8 @@
       amount: <input id="amount" value="0.01">
       <!--<br>symbol: <input id="symbol" value="btc_cny">-->
       <br>price: <input id="price">
-      <br><input id="buy" type="radio" name="market" value="buy" checked>buy
+      <br>
+      <input id="buy" type="radio" name="market" value="buy" checked>buy
       <input type="radio" name="market" value="sell">sell
     </td>
   </tr>
@@ -198,6 +199,9 @@
     else if(isString(obj)){
       return '"' + obj + '"';
     }
+    else{
+      return obj;
+    }
   }
   function addTab(tab, str){
     var blanks = '';
@@ -241,13 +245,24 @@
   }
 
   //现货下单
-  function spotTrade(amount, price, market, symbol){
-    mySend('ok_spotcny_trade', {
-      amount: amount || 0.01,
+  function spotTrade(amount, price, type, symbol){
+    if(amount < 0.01){
+      console.error('amount error: ' + amount);
+      return;
+    }
+
+    if(!price){
+      console.error('price error: ' + price);
+      return;
+    }
+    var obj = {
+      amount: amount,
       price : price,
-      type  : market,
+      type  : type,
       symbol: symbol || 'btc_cny'
-    });
+    };
+
+    mySend('ok_spotcny_trade', obj);
   }
 
   //现货取消订单
@@ -309,11 +324,13 @@
           var close = +data.data[4];
           //          console.log(myTime(time), close);
           if(trade.sell_amount > 0 && close > trade.sell_price){
-            spotTrade(trade.sell_amount, trade.sell_price, 'sell');
+            spotTrade(trade.sell_amount, trade.sell_price - 10, 'sell');
+            trade.sell_amount = 0;
           }
 
           if(trade.buy_amount > 0 && close < trade.buy_price){
-            spotTrade(trade.buy_amount, trade.buy_price, 'buy');
+            spotTrade(trade.buy_amount, trade.buy_price + 10, 'buy');
+            trade.buy_amount = 0;
           }
         }
         break;
@@ -338,7 +355,14 @@
          "type"       : "buy"
          }
          */
-        var orders      = data.data.orders;
+        try{
+          var orders = data.data.orders;
+        }
+        catch(e){
+          console.error(e);
+          var orders = [];
+        }
+
         var order;
         var select_node = $('#cancel_order_orderId').I();
 
@@ -367,7 +391,8 @@
           if(data.status == 2){
             cancelAllOrders();
             var trade_price = +data.averagePrice;
-            trade = {
+            trade           = {
+              trade_price: trade_price,
               price      : trade_price,
               tradeAmount: +data.tradeAmount,
               time       : data.createdDate,
@@ -381,11 +406,11 @@
             setTimeout(function(){
               if(trade.type == 'buy'){
                 //价格下移
-                //                trade_price.price *= 0.999;
+                trade.price *= 1-0.0003;
               }
               else{
                 //价格上移
-                //                trade_price.price *= 1.001;
+                trade.price *= 1+0.0003;
               }
 
               trade.sell_price  = fixTo2(trade.price + trade.jump);
@@ -394,9 +419,9 @@
               trade.buy_price  = fixTo2(trade.price - trade.jump);
               trade.buy_amount = fixTo2(Math.min(trade.max, cny / trade.price / E));
 
-              console.log(trade);
+              console.log(channel, trade);
 
-            }, 5000);
+            }, 15000);
           }
         }
         node.nextElementSibling.title = [
@@ -442,17 +467,18 @@
     switch(channel){
       case 'ok_spotcny_trade':
         var amount     = $('#amount').val() || 0.01;
-        var price      = $('#price').val() || 2800;
-        var market     = $('#buy').context.checked ? 'buy' : 'sell';
+        var price      = $('#price').val();
+        var type       = $('#buy').context.checked ? 'buy' : 'sell';
         var symbol     = 'btc_cny';
         var parameters = {
           symbol: symbol,
           amount: amount,
           price : price,
-          type  : market
+          type  : type
         };
+
         if(confirm(showObj(parameters))){
-          spotTrade(amount, price, market, symbol);
+          spotTrade(amount, price, type, symbol);
         }
         break;
       case 'ok_spotcny_cancel_order':
