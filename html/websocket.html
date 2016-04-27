@@ -381,11 +381,11 @@
             setTimeout(function(){
               if(trade.type == 'buy'){
                 //价格下移
-                                trade_price.price *= 0.999;
+                trade.price *= 0.9995;
               }
               else{
                 //价格上移
-                                trade_price.price *= 1.001;
+                trade.price *= 1.0005;
               }
 
               trade.sell_price  = fixTo2(trade.price + trade.jump);
