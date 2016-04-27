@@ -35,8 +35,9 @@
     <td>
       amount: <input id="amount" value="0.01">
       <!--<br>symbol: <input id="symbol" value="btc_cny">-->
-      <br>price: <input id="price">
-      <br><input id="buy" type="radio" name="market" value="buy" checked>buy
+      <br>price: <input id="price"> <input id="market" type="checkbox">market
+      <br>
+      <input id="buy" type="radio" name="market" value="buy" checked>buy
       <input type="radio" name="market" value="sell">sell
     </td>
   </tr>
@@ -198,6 +199,9 @@
     else if(isString(obj)){
       return '"' + obj + '"';
     }
+    else{
+      return obj;
+    }
   }
   function addTab(tab, str){
     var blanks = '';
@@ -242,12 +246,21 @@
 
   //现货下单
   function spotTrade(amount, price, market, symbol){
-    mySend('ok_spotcny_trade', {
-      amount: amount || 0.01,
-      price : price,
+    if(amount<0.1){
+      console.error('amount error: ' + amount);
+      return;
+    }
+    var obj = {
+      amount: amount,
       type  : market,
       symbol: symbol || 'btc_cny'
-    });
+    };
+
+    if(price){
+      obj.price = price;
+    }
+    mySend('ok_spotcny_trade', obj);
+
   }
 
   //现货取消订单
@@ -309,11 +322,13 @@
           var close = +data.data[4];
           //          console.log(myTime(time), close);
           if(trade.sell_amount > 0 && close > trade.sell_price){
-            spotTrade(trade.sell_amount, trade.sell_price, 'sell');
+            spotTrade(trade.sell_amount, 0, 'sell_market');
+            trade.sell_amount = 0;
           }
 
           if(trade.buy_amount > 0 && close < trade.buy_price){
-            spotTrade(trade.buy_amount, trade.buy_price, 'buy');
+            spotTrade(trade.buy_amount, 0, 'buy_market');
+            trade.buy_amount = 0;
           }
         }
         break;
@@ -338,6 +353,7 @@
          "type"       : "buy"
          }
          */
+        console.log(channel, data);
         var orders      = data.data.orders;
         var order;
         var select_node = $('#cancel_order_orderId').I();
@@ -367,7 +383,7 @@
           if(data.status == 2){
             cancelAllOrders();
             var trade_price = +data.averagePrice;
-            trade = {
+            trade           = {
               price      : trade_price,
               tradeAmount: +data.tradeAmount,
               time       : data.createdDate,
@@ -394,7 +410,7 @@
               trade.buy_price  = fixTo2(trade.price - trade.jump);
               trade.buy_amount = fixTo2(Math.min(trade.max, cny / trade.price / E));
 
-              console.log(trade);
+              console.log(channel, trade);
 
             }, 5000);
           }
@@ -443,16 +459,19 @@
       case 'ok_spotcny_trade':
         var amount     = $('#amount').val() || 0.01;
         var price      = $('#price').val() || 2800;
-        var market     = $('#buy').context.checked ? 'buy' : 'sell';
+        var market     = $('#market').context.checked;
+        var type       = $('#buy').context.checked ? 'buy' : 'sell';
         var symbol     = 'btc_cny';
         var parameters = {
           symbol: symbol,
           amount: amount,
-          price : price,
-          type  : market
+          type  : market ? type + '_market' : type
         };
+        if(!market){
+          parameters.price = price;
+        }
         if(confirm(showObj(parameters))){
-          spotTrade(amount, price, market, symbol);
+          spotTrade(amount, price, type, symbol);
         }
         break;
       case 'ok_spotcny_cancel_order':
