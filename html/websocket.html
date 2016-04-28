@@ -235,10 +235,11 @@
   }
 
   function init(){
-    buy_orders  = {};
-    sell_orders = {};
-    trade       = {};
-    E           = Math.E;
+    buy_orders   = {};
+    sell_orders  = {};
+    trade        = {};
+    SS.can_trade = 1;
+    E            = Math.E;
     spotUserInfo();
     spotSubTrades();
     spotSubUserinfos();
@@ -321,21 +322,50 @@
     switch(channel){
       case 'ok_sub_spotcny_btc_kline_1min':
         if(data.data){
-          var time  = data.data[0];
+          var now   = Date.now();
           var close = +data.data[4];
-          //          console.log(myTime(time), close);
-          if(SS.sell_amount > 0 && close > +SS.sell_price){
-            spotTrade(SS.sell_amount, SS.sell_price - 10, 'sell');
-            SS.sell_amount = 0;
-          }
 
-          if(SS.buy_amount > 0 && close < +SS.buy_price){
-            spotTrade(SS.buy_amount, SS.buy_price * 1 + 10, 'buy');
-            SS.buy_amount = 0;
+          if(!close){
+            return;
+          }
+          //total, btc, cny, now, close
+          //SS: price, amount, time, type, can_sell, can_buy
+
+          var sell_amount = fixTo2(btc * .618);
+          var buy_amount  = fixTo2(cny / close * 0.618);
+          var trade_price = +SS.price;
+          console.log(sell_amount, buy_amount, trade_price);
+          if(SS.can_trade == '1'){
+            if(sell_amount >= 0.01 && (
+              SS.type == 'buy' && close < trade_price ||
+              SS.type == 'buy' && close > +trade_price + 2 && buy_amount < 0.01 ||
+              SS.type == 'sell' && close < trade_price - 2)
+            ){
+              spotTrade(sell_amount, close - 10, 'sell');
+              console.log('sell', sell_amount, close - 10);
+              //停止判断, 直到交易成功
+              SS.can_trade = 0;
+            }
+
+            if(buy_amount >= 0.01 && (
+              SS.type == 'sell' && close > trade_price ||
+              SS.type == 'sell' && close < trade_price - 2 && sell_amount < 0.01 ||
+              SS.type == 'buy' && close > +trade_price + 2)
+            ){
+              spotTrade(buy_amount, close + 10, 'buy');
+              console.log('buy', buy_amount, close + 10);
+
+              //停止判断, 直到交易成功
+              SS.can_trade = 0;
+            }
           }
         }
+
         break;
       case 'ok_spotcny_userinfo':
+        if(data.success == 'false'){
+          return;
+        }
         try{
           var funds = data.data.info.funds;
           total     = +funds.asset.total;
@@ -398,50 +428,19 @@
         if(data){
           if(data.status == 2){
             cancelAllOrders();
-            var trade_price = +data.averagePrice;
-            trade           = {
-              trade_price: trade_price,
-              price      : trade_price,
-              tradeAmount: +data.tradeAmount,
-              time       : myTime(data.createdDate),
-              type       : data.tradeType,
-              //              max        : total / trade_price / 6,   //限定每次交易量上限
-              jump       :.618, //trade_price * 0.0005,       //每次买卖点间隔为jump两倍
-              sell_amount: 0, //此时不会触发交易
-              buy_amount : 0
-            };
+            SS.clear();
+            SS.price  = data.averagePrice;
+            SS.amount = data.tradeAmount;
+            SS.time   = Date.now(); //data.createdDate;
+            SS.type   = data.tradeType;
 
+            //等待刷新账户数据
             setTimeout(function(){
-              if(trade.type == 'buy'){
-                //价格下移
-                //trade.price *= 1-0.0003;
-              }
-              else{
-                //价格上移
-                //trade.price *= 1+0.0003;
-              }
+              //可以交易了
+              SS.can_trade = 1;
+            }, 20000);
 
-              trade.sell_price  = fixTo2(trade.price + trade.jump);
-              trade.sell_amount = fixTo2(btc * .618);
-
-              trade.buy_price  = fixTo2(trade.price - trade.jump);
-              trade.buy_amount = fixTo2(cny / trade.price * .618);
-
-              if(trade.sell_amount == 0){
-                trade.buy_price += 100;
-              }
-              else if(trade.buy_amount == 0){
-                trade.sell_price -= 100;
-              }
-
-              SS.sell_price  = trade.sell_price;
-              SS.sell_amount = trade.sell_amount;
-              SS.buy_price   = trade.buy_price;
-              SS.buy_amount  = trade.buy_amount;
-
-              console.log(trade.time, trade_price, trade.tradeAmount, trade.type, SS);
-
-            }, 1000);
+            console.log(myTime(+SS.time), SS.price, SS.amount, SS.type);
           }
         }
         node.nextElementSibling.title = [
@@ -521,7 +520,7 @@
     }
   }
 
-//  setTimeout(function(){
-//    window.location.reload();
-//  }, 600000);
+  //  setTimeout(function(){
+  //    window.location.reload();
+  //  }, 600000);
 </script>
