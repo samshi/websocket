@@ -68,6 +68,7 @@
 </body>
 </html>
 <script type="text/javascript">
+  var SS = localStorage;
   var okCoinWebSocket = {};
   okCoinWebSocket.init = function(uri, apiKey, secretKey){
     this.wsUri         = uri;
@@ -323,22 +324,29 @@
           var time  = data.data[0];
           var close = +data.data[4];
           //          console.log(myTime(time), close);
-          if(trade.sell_amount > 0 && close > trade.sell_price){
-            spotTrade(trade.sell_amount, trade.sell_price - 10, 'sell');
-            trade.sell_amount = 0;
+          if(SS.sell_amount > 0 && close > +SS.sell_price){
+            spotTrade(SS.sell_amount, SS.sell_price - 10, 'sell');
+            SS.sell_amount = 0;
           }
 
-          if(trade.buy_amount > 0 && close < trade.buy_price){
-            spotTrade(trade.buy_amount, trade.buy_price + 10, 'buy');
-            trade.buy_amount = 0;
+          if(SS.buy_amount > 0 && close < +SS.buy_price){
+            spotTrade(SS.buy_amount, SS.buy_price * 1 + 10, 'buy');
+            SS.buy_amount = 0;
           }
         }
         break;
       case 'ok_spotcny_userinfo':
-        var funds = data.data.info.funds;
-        total     = +funds.asset.total;
-        cny       = +funds.free.cny;
-        btc       = +funds.free.btc;
+        try{
+          var funds = data.data.info.funds;
+          total     = +funds.asset.total;
+          cny       = +funds.free.cny;
+          btc       = +funds.free.btc;
+        }
+        catch(e){
+          console.error(e, data);
+          spotUserInfo();
+        }
+
         break;
       case 'ok_spotcny_orderinfo':
         /*
@@ -359,7 +367,7 @@
           var orders = data.data.orders;
         }
         catch(e){
-          console.error(e);
+          console.error(e, data);
           var orders = [];
         }
 
@@ -395,11 +403,11 @@
               trade_price: trade_price,
               price      : trade_price,
               tradeAmount: +data.tradeAmount,
-              time       : data.createdDate,
+              time       : myTime(data.createdDate),
               type       : data.tradeType,
               //              max        : total / trade_price / 6,   //限定每次交易量上限
-              jump       : 1, //trade_price * 0.0005,       //每次买卖点间隔为jump两倍
-              sell_amount: 0,
+              jump       :.618, //trade_price * 0.0005,       //每次买卖点间隔为jump两倍
+              sell_amount: 0, //此时不会触发交易
               buy_amount : 0
             };
 
@@ -414,12 +422,24 @@
               }
 
               trade.sell_price  = fixTo2(trade.price + trade.jump);
-              trade.sell_amount = fixTo2(btc / 2);
+              trade.sell_amount = fixTo2(btc * .618);
 
               trade.buy_price  = fixTo2(trade.price - trade.jump);
-              trade.buy_amount = fixTo2(cny / trade.price / 2);
+              trade.buy_amount = fixTo2(cny / trade.price * .618);
 
-              console.log(channel, trade);
+              if(trade.sell_amount == 0){
+                trade.buy_price += 100;
+              }
+              else if(trade.buy_amount == 0){
+                trade.sell_price -= 100;
+              }
+
+              SS.sell_price  = trade.sell_price;
+              SS.sell_amount = trade.sell_amount;
+              SS.buy_price   = trade.buy_price;
+              SS.buy_amount  = trade.buy_amount;
+
+              console.log(trade.time, trade_price, trade.tradeAmount, trade.type, SS);
 
             }, 1000);
           }
@@ -500,4 +520,8 @@
         myChannel(channel);
     }
   }
+
+//  setTimeout(function(){
+//    window.location.reload();
+//  }, 600000);
 </script>
