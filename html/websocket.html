@@ -331,195 +331,205 @@
           //total, btc, cny, now, close
           //SS: price, amount, time, type, can_sell, can_buy
 
-          var sell_amount = fixTo2(btc * .618);
-          var buy_amount  = fixTo2(cny / close * 0.618);
+          var sell_amount = fixTo2(btc * .9);
+          var buy_amount  = fixTo2(cny / close * 0.9);
           var trade_price = +SS.price;
           console.log(sell_amount, buy_amount, trade_price);
           if(SS.can_trade == '1'){
-            if(sell_amount >= 0.01 && (
-              SS.type == 'buy' && close < trade_price ||
-              SS.type == 'buy' && close > +trade_price + 2 && buy_amount < 0.01 ||
-              SS.type == 'sell' && close < trade_price - 2)
-            ){
-              spotTrade(sell_amount, close - 10, 'sell');
-              console.log('sell', sell_amount, close - 10);
-              //停止判断, 直到交易成功
-              SS.can_trade = 0;
-            }
+            if(sell_amount >= 0.01 && SS.type == 'buy'){
+              if(close > trade_price + 10 ||
+                close > trade_price && close < trade_price + 1 ||
+                close < trade_price - 3
+              ){
+                spotTrade(sell_amount, close - 10, 'sell');
+                console.log('sell', sell_amount, close - 10);
+                //停止判断, 直到交易成功
+                SS.can_trade = 0;
+              }
 
-            if(buy_amount >= 0.01 && (
-              SS.type == 'sell' && close > trade_price ||
-              SS.type == 'sell' && close < trade_price - 2 && sell_amount < 0.01 ||
-              SS.type == 'buy' && close > +trade_price + 2)
-            ){
-              spotTrade(buy_amount, close + 10, 'buy');
-              console.log('buy', buy_amount, close + 10);
+              if(buy_amount >= 0.01 && SS.type == 'sell'){
+                if(close < trade_price - 10 ||
+                  close < trade_price && close > trade_price - 1 ||
+                  close > trade_price + 3
+                ){
+                  spotTrade(buy_amount, close + 10, 'buy');
+                  console.log('buy', buy_amount, close + 10);
 
-              //停止判断, 直到交易成功
-              SS.can_trade = 0;
+                  //停止判断, 直到交易成功
+                  SS.can_trade = 0;
+                }
+              }
             }
           }
-        }
 
-        break;
-      case 'ok_spotcny_userinfo':
-        if(data.success == 'false'){
-          return;
-        }
-        try{
-          var funds = data.data.info.funds;
-          total     = +funds.asset.total;
-          cny       = +funds.free.cny;
-          btc       = +funds.free.btc;
-        }
-        catch(e){
-          console.error(e, data);
+          break;
+        case
+          'ok_spotcny_userinfo'
+        :
+          if(data.success == 'false'){
+            return;
+          }
+          try{
+            var funds = data.data.info.funds;
+            total     = +funds.asset.total;
+            cny       = +funds.free.cny;
+            btc       = +funds.free.btc;
+          }
+          catch(e){
+            console.error(e, data);
+            spotUserInfo();
+          }
+
+          break;
+        case
+          'ok_spotcny_orderinfo'
+        :
+          /*
+           {
+           "amount"     : 0.02,
+           "avg_price"  : 0,
+           "create_date": 1461587008000,
+           "deal_amount": 0,
+           "order_id"   : 2913340076,
+           "orders_id"  : 2913340076,
+           "price"      : 2802,
+           "status"     : 0,
+           "symbol"     : "btc_cny",
+           "type"       : "buy"
+           }
+           */
+          try{
+            var orders = data.data.orders;
+          }
+          catch(e){
+            console.error(e, data);
+            var orders = [];
+          }
+
+          var order;
+          var select_node = $('#cancel_order_orderId').I();
+
+          buy_orders  = {};
+          sell_orders = {};
+
+          for(var j = 0, m = orders.length; j < m; j++){
+            order = orders[j];
+            $.c(select_node, {
+              value: order.order_id,
+              I    : [order.amount, order.price, order.type].join(' ')
+            }, 'option');
+
+            if(order.type == 'buy'){
+              buy_orders[order.order_id] = 1;
+            }
+            if(order.type == 'sell'){
+              sell_orders[order.order_id] = 1;
+            }
+          }
+          break;
+        case
+          'ok_sub_spotcny_trades'
+        :
+          spotOrderInfo();
+          var data = data.data;
+          if(data){
+            if(data.status == 2){
+              cancelAllOrders();
+              SS.clear();
+              SS.price  = data.averagePrice;
+              SS.amount = data.tradeAmount;
+              SS.time   = Date.now(); //data.createdDate;
+              SS.type   = data.tradeType;
+
+              //等待刷新账户数据
+              setTimeout(function(){
+                //可以交易了
+                SS.can_trade = 1;
+                console.log('can_trade');
+              }, 20000);
+
+              console.log(myTime(+SS.time), SS.price, SS.amount, SS.type);
+            }
+          }
+          node.nextElementSibling.title = [
+            'createdDate:创建日期',
+            'orderId:订单id',
+            'tradeType:交易类型（buy:买入；sell:卖出；buy_market:按市价买入；sell_market:按市价卖出）',
+            'sigTradeAmount:单笔成交数量',
+            'sigTradePrice:单笔成交价格',
+            'tradeAmount:委托数量（市价卖代表要卖总数量；限价单代表委托数量）',
+            'tradeUnitPrice:委托价格（市价买单代表购买总金额； 限价单代表委托价格）',
+            'symbol:btc_cny:比特币；ltc_cny:莱特币',
+            'completedTradeAmount:已完成成交量',
+            'tradePrice:成交金额',
+            'averagePrice:平均成交价',
+            'unTrade:当按市场价买币时表示剩余金额，其他情况表示此笔交易剩余买/卖币的数量',
+            'status:-1已撤销,0等待成交,1部分成交,2完全成交,4撤单处理中'
+          ].join("\n");
+          break;
+        case
+          'ok_sub_spotcny_userinfo'
+        :
           spotUserInfo();
+          break;
         }
+    }
 
-        break;
-      case 'ok_spotcny_orderinfo':
-        /*
-         {
-         "amount"     : 0.02,
-         "avg_price"  : 0,
-         "create_date": 1461587008000,
-         "deal_amount": 0,
-         "order_id"   : 2913340076,
-         "orders_id"  : 2913340076,
-         "price"      : 2802,
-         "status"     : 0,
-         "symbol"     : "btc_cny",
-         "type"       : "buy"
-         }
-         */
-        try{
-          var orders = data.data.orders;
-        }
-        catch(e){
-          console.error(e, data);
-          var orders = [];
-        }
+    function myTime(time){
+      return (new Date(time)).toLocaleString()
+    }
 
-        var order;
-        var select_node = $('#cancel_order_orderId').I();
+    function fixTo2(n){
+      return $.R(n * 100) / 100;
+    }
 
-        buy_orders  = {};
-        sell_orders = {};
+    function cancelAllOrders(){
+      for(var order_id in buy_orders){
+        spotCancelOrder(order_id);
+      }
+      for(var order_id in sell_orders){
+        spotCancelOrder(order_id);
+      }
+    }
 
-        for(var j = 0, m = orders.length; j < m; j++){
-          order = orders[j];
-          $.c(select_node, {
-            value: order.order_id,
-            I    : [order.amount, order.price, order.type].join(' ')
-          }, 'option');
+    function getData(node){
+      var channel = node.id;
+      switch(channel){
+        case 'ok_spotcny_trade':
+          var amount     = $('#amount').val() || 0.01;
+          var price      = $('#price').val();
+          var type       = $('#buy').context.checked ? 'buy' : 'sell';
+          var symbol     = 'btc_cny';
+          var parameters = {
+            symbol: symbol,
+            amount: amount,
+            price : price,
+            type  : type
+          };
 
-          if(order.type == 'buy'){
-            buy_orders[order.order_id] = 1;
+          if(confirm(showObj(parameters))){
+            spotTrade(amount, price, type, symbol);
           }
-          if(order.type == 'sell'){
-            sell_orders[order.order_id] = 1;
-          }
-        }
-        break;
-      case 'ok_sub_spotcny_trades':
-        spotOrderInfo();
-        var data = data.data;
-        if(data){
-          if(data.status == 2){
-            cancelAllOrders();
-            SS.clear();
-            SS.price  = data.averagePrice;
-            SS.amount = data.tradeAmount;
-            SS.time   = Date.now(); //data.createdDate;
-            SS.type   = data.tradeType;
-
-            //等待刷新账户数据
-            setTimeout(function(){
-              //可以交易了
-              SS.can_trade = 1;
-              console.log('can_trade');
-            }, 20000);
-
-            console.log(myTime(+SS.time), SS.price, SS.amount, SS.type);
-          }
-        }
-        node.nextElementSibling.title = [
-          'createdDate:创建日期',
-          'orderId:订单id',
-          'tradeType:交易类型（buy:买入；sell:卖出；buy_market:按市价买入；sell_market:按市价卖出）',
-          'sigTradeAmount:单笔成交数量',
-          'sigTradePrice:单笔成交价格',
-          'tradeAmount:委托数量（市价卖代表要卖总数量；限价单代表委托数量）',
-          'tradeUnitPrice:委托价格（市价买单代表购买总金额； 限价单代表委托价格）',
-          'symbol:btc_cny:比特币；ltc_cny:莱特币',
-          'completedTradeAmount:已完成成交量',
-          'tradePrice:成交金额',
-          'averagePrice:平均成交价',
-          'unTrade:当按市场价买币时表示剩余金额，其他情况表示此笔交易剩余买/卖币的数量',
-          'status:-1已撤销,0等待成交,1部分成交,2完全成交,4撤单处理中'
-        ].join("\n");
-        break;
-      case 'ok_sub_spotcny_userinfo':
-        spotUserInfo();
-        break;
+          break;
+        case 'ok_spotcny_cancel_order':
+          spotCancelOrder($('#cancel_order_orderId').val());
+          break;
+        case 'ok_spotcny_userinfo':
+          spotUserInfo();
+          break;
+        case 'ok_spotcny_orderinfo':
+          spotOrderInfo();
+          break;
+        case 'ok_sub_spotcny_trades':
+          spotSubTrades();
+          break;
+        case 'ok_sub_spotcny_userinfo':
+          spotSubUserinfos();
+          break;
+        default:
+          myChannel(channel);
+      }
     }
-  }
-
-  function myTime(time){
-    return (new Date(time)).toLocaleString()
-  }
-
-  function fixTo2(n){
-    return $.R(n * 100) / 100;
-  }
-  function cancelAllOrders(){
-    for(var order_id in buy_orders){
-      spotCancelOrder(order_id);
-    }
-    for(var order_id in sell_orders){
-      spotCancelOrder(order_id);
-    }
-  }
-
-  function getData(node){
-    var channel = node.id;
-    switch(channel){
-      case 'ok_spotcny_trade':
-        var amount     = $('#amount').val() || 0.01;
-        var price      = $('#price').val();
-        var type       = $('#buy').context.checked ? 'buy' : 'sell';
-        var symbol     = 'btc_cny';
-        var parameters = {
-          symbol: symbol,
-          amount: amount,
-          price : price,
-          type  : type
-        };
-
-        if(confirm(showObj(parameters))){
-          spotTrade(amount, price, type, symbol);
-        }
-        break;
-      case 'ok_spotcny_cancel_order':
-        spotCancelOrder($('#cancel_order_orderId').val());
-        break;
-      case 'ok_spotcny_userinfo':
-        spotUserInfo();
-        break;
-      case 'ok_spotcny_orderinfo':
-        spotOrderInfo();
-        break;
-      case 'ok_sub_spotcny_trades':
-        spotSubTrades();
-        break;
-      case 'ok_sub_spotcny_userinfo':
-        spotSubUserinfos();
-        break;
-      default:
-        myChannel(channel);
-    }
-  }
 
   //  setTimeout(function(){
   //    window.location.reload();
