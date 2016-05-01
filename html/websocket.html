@@ -331,55 +331,23 @@
           //total, btc, cny, now, close
           //SS: price, amount, time, type, can_sell, can_buy
 
-          var sell_amount = fixTo2(btc * .95);
-          var buy_amount  = fixTo2(cny / close * 0.95);
-          var trade_price = +SS.price;
-//          console.log(sell_amount, buy_amount, trade_price);
+          var sell_amount = Math.min(0.01, btc); //fixTo2(btc * .95);
+          var buy_amount  = Math.min(0.01, cny / close); //fixTo2(cny / close * 0.95);
+          var trade_price = fixTo2(SS.price);
           if(SS.can_trade == '1'){
-            if(sell_amount >= 0.01 && SS.type == 'buy'){
-              if(close > trade_price + 10){
-                //发生大事了, 等半小时再说
-                SS.can_trade = 0;
-                setTimeout(function(){
-                  //可以交易了
-                  SS.can_trade = 1;
-                  console.log('can_trade');
-                }, 30 * 60 * 1000);
-              }
-              else if(
-                close > trade_price + 5 ||
-                  //如果已经赢了5点
-                close > trade_price + 1 && close < trade_price + 2 ||
-                  //如果赢了1-2点
-                close < trade_price - 5
-              //如果输了5点
-              ){
-                spotTrade(sell_amount, close - 10, 'sell');
-                console.log('sell', sell_amount, close - 10);
-                //停止判断, 直到交易成功
-                SS.can_trade = 0;
-              }
-            }
-            if(buy_amount >= 0.01 && SS.type == 'sell'){
-              if(close < trade_price - 10){
-                SS.can_trade = 0;
-                setTimeout(function(){
-                  //可以交易了
-                  SS.can_trade = 1;
-                  console.log('can_trade');
-                }, 30 * 60 * 1000);
-              }
-              else if(
-                close < trade_price - 5 ||
-                close < trade_price - 1 && close > trade_price - 2 ||
-                close > trade_price + 5
-              ){
-                spotTrade(buy_amount, close + 10, 'buy');
-                console.log('buy', buy_amount, close + 10);
+            if(sell_amount >= 0.01 && close > trade_price + 1){
+                spotTrade(sell_amount, trade_price, 'sell');
+                console.log('sell', sell_amount, trade_price);
 
                 //停止判断, 直到交易成功
                 SS.can_trade = 0;
-              }
+            }
+            if(buy_amount >= 0.01 && close < trade_price - 1){
+                spotTrade(buy_amount, trade_price, 'buy');
+                console.log('buy', buy_amount, trade_price);
+
+                //停止判断, 直到交易成功
+                SS.can_trade = 0;
             }
           }
         }
@@ -453,14 +421,15 @@
             SS.time   = Date.now(); //data.createdDate;
             SS.type   = data.tradeType;
 
+            console.log(myTime(+SS.time), SS.price, SS.amount, SS.type);
+
             //等待刷新账户数据
             setTimeout(function(){
               //可以交易了
               SS.can_trade = 1;
-              console.log('can_trade');
-            }, 20000);
+//              console.log('can_trade');
+            }, 2000);
 
-            console.log(myTime(+SS.time), SS.price, SS.amount, SS.type);
           }
         }
         node.nextElementSibling.title = [
