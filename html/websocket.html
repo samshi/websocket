@@ -337,14 +337,14 @@
           if(SS.can_trade == '1'){
             if(sell_amount >= 0.01 && close > trade_price + 1){
                 spotTrade(sell_amount, trade_price, 'sell');
-                console.log('sell', sell_amount, trade_price);
+//                console.log('sell', sell_amount, trade_price);
 
                 //停止判断, 直到交易成功
                 SS.can_trade = 0;
             }
             if(buy_amount >= 0.01 && close < trade_price - 1){
                 spotTrade(buy_amount, trade_price, 'buy');
-                console.log('buy', buy_amount, trade_price);
+//                console.log('buy', buy_amount, trade_price);
 
                 //停止判断, 直到交易成功
                 SS.can_trade = 0;
