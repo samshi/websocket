@@ -331,9 +331,10 @@
           //total, btc, cny, now, close
           //SS: price, amount, time, type, can_sell, can_buy
 
-          var sell_amount = Math.min(0.01, btc); //fixTo2(btc * .95);
-          var buy_amount  = Math.min(0.01, cny / close); //fixTo2(cny / close * 0.95);
-          var trade_price = fixTo2(SS.price);
+          var sell_amount = Math.min(0.02, fixTo2(btc)); //fixTo2(btc * .95);
+          var buy_amount  = Math.min(0.02, fixTo2(cny / close)); //fixTo2(cny / close * 0.95);
+          var trade_price = +SS.price + (btc<cny / close ? 0.1 : -0.1);//fixTo2(SS.price);
+
           if(SS.can_trade == '1'){
             if(sell_amount >= 0.01 && close > trade_price + 1){
                 spotTrade(sell_amount, trade_price, 'sell');
