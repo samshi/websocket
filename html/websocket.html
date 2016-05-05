@@ -333,22 +333,20 @@
 
           var sell_amount = Math.min(0.02, fixTo2(btc)); //fixTo2(btc * .95);
           var buy_amount  = Math.min(0.02, fixTo2(cny / close)); //fixTo2(cny / close * 0.95);
-          var trade_price = +SS.price + (btc<cny / close ? 0.1 : -0.1);//fixTo2(SS.price);
+          var trade_price = +SS.price + (btc < cny / close ? 0.1 : -0.1);//fixTo2(SS.price);
 
           if(SS.can_trade == '1'){
             if(sell_amount >= 0.01 && close > trade_price + 1){
-                spotTrade(sell_amount, trade_price, 'sell');
-//                console.log('sell', sell_amount, trade_price);
+              spotTrade(sell_amount, trade_price, 'sell');
 
-                //停止判断, 直到交易成功
-                SS.can_trade = 0;
+              //停止判断, 直到交易成功
+              SS.can_trade = 0;
             }
             if(buy_amount >= 0.01 && close < trade_price - 1){
-                spotTrade(buy_amount, trade_price, 'buy');
-//                console.log('buy', buy_amount, trade_price);
+              spotTrade(buy_amount, trade_price, 'buy');
 
-                //停止判断, 直到交易成功
-                SS.can_trade = 0;
+              //停止判断, 直到交易成功
+              SS.can_trade = 0;
             }
           }
         }
@@ -428,7 +426,7 @@
             setTimeout(function(){
               //可以交易了
               SS.can_trade = 1;
-//              console.log('can_trade');
+              //              console.log('can_trade');
             }, 2000);
 
           }
